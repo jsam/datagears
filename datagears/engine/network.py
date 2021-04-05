@@ -1,4 +1,5 @@
 import inspect
+from concurrent import futures
 from typing import Any, Callable, List, Optional, Tuple, Type, Union
 
 from networkx import MultiDiGraph
@@ -7,6 +8,7 @@ from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from datagears.engine.api import (EngineAPI, NetworkAPI, NetworkPlotAPI,
                                   NetworkRunAPI)
+from datagears.engine.engine import LocalEngine
 from datagears.engine.nodes import Gear, GearInput, GearInputOutput, GearOutput
 
 
@@ -94,19 +96,26 @@ class NetworkPropertyMixin(NetworkAPI):
 
 
 class NetworkRun(NetworkRunAPI, NetworkPropertyMixin):
+    """Network run instance."""
+
     def __init__(
         self,
         network: NetworkAPI,
-        engine: Type[EngineAPI],
-        config: dict = {},
+        engine: EngineAPI,
         output_all: bool = False,
         **kwargs,
     ) -> None:
         """Network run constructor."""
         self._network = network
         self._output_all = output_all
-        self._engine = engine(self._network, **config)
-        self._result = self._engine.run(output_all=output_all, **kwargs)
+        self._engine = engine
+
+        if not self._engine.is_ready():
+            self._engine.prepare()
+
+        self._result: Union[dict, futures.Future] = self._engine.run(
+            on_network=self._network, output_all=output_all, **kwargs
+        )
 
         super().__init__(self._network.graph)
 
@@ -119,7 +128,12 @@ class NetworkRun(NetworkRunAPI, NetworkPropertyMixin):
 class Network(NetworkPropertyMixin):
     """Representation of a DAG which contains all processing data."""
 
-    def __init__(self, name: str, outputs: Optional[List[Callable]] = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        outputs: Optional[List[Callable]] = None,
+        engine: EngineAPI = None,
+    ) -> None:
         """Network constructor."""
         self._outputting_nodes = outputs or []
         self._graph: MultiDiGraph = MultiDiGraph(name=name)
@@ -130,6 +144,9 @@ class Network(NetworkPropertyMixin):
             self._add_gear(gear)
 
         super().__init__(self._graph)
+
+        if not engine:
+            self._engine = LocalEngine(self)
 
     def _set_input(self, input_data: dict):
         """Set input data for the graph computation."""
@@ -212,6 +229,4 @@ class Network(NetworkPropertyMixin):
 
     def run(self, output_all=False, **kwargs) -> NetworkRunAPI:
         """Run computation."""
-        from datagears.engine.engine import LocalEngine
-
-        return NetworkRun(self.copy(), LocalEngine, output_all=output_all, **kwargs)
+        return NetworkRun(self.copy(), self._engine, output_all=output_all, **kwargs)

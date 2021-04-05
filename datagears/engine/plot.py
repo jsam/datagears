@@ -34,7 +34,8 @@ class NetworkPlot:
         """Render pydot for viewing in Jupyter notebook."""
         from IPython.display import Image, display
 
-        display(Image(self._pydot_graph.create_png()))
+        _png = self._pydot_graph.create_png()
+        display(Image(_png))
 
     def to_file(self, filename):
         """Write plot to a file."""

@@ -1,4 +1,6 @@
 import abc
+from concurrent.futures import Future
+from typing import Dict, Union
 
 
 class NetworkPlotAPI(metaclass=abc.ABCMeta):
@@ -40,10 +42,21 @@ class NetworkAPI(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class NetworkRunAPI(NetworkAPI, metaclass=abc.ABCMeta):
+class NetworkRunAPI(NetworkAPI):
     """Abstract class defining network run actions."""
 
-    pass
+    @property
+    def result(self) -> Union[Dict, Future]:
+        """Return result of the network run."""
+        raise NotImplementedError
+
+
+class NetworkParentAPI(NetworkAPI):
+    """Abstract class definint network parent."""
+
+    def run(output_all: bool = False, **kwargs) -> NetworkRunAPI:
+        """Execute all gears in the network."""
+        raise NotImplementedError
 
 
 class EngineAPI(metaclass=abc.ABCMeta):
@@ -56,10 +69,18 @@ class EngineAPI(metaclass=abc.ABCMeta):
         """Prepare the given computation for executor."""
         raise NotImplementedError
 
+    def is_ready(self):
+        """Check if engine is ready for computation."""
+        raise NotImplementedError
+
     def run(self) -> NetworkRunAPI:
         """Runs the computational network and returns the result object."""
         raise NotImplementedError
 
     def register():
         """Registers the computational network with RedisGears."""
+        raise NotImplementedError
+
+    def teardown():
+        """Cleanup phase."""
         raise NotImplementedError

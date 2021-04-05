@@ -15,9 +15,7 @@ class LocalEngine(EngineAPI):
 
         self._network: Network = compute
         self._max_workers: int = max_workers
-        self._executor = ProcessPoolExecutor(max_workers=self._max_workers)
-
-        # TODO: self.shutdown(wait=True)
+        self._executor: ProcessPoolExecutor = None
 
     def _submit_next(self) -> dict:
         """Submit next batch of jobs to the pool."""
@@ -44,12 +42,21 @@ class LocalEngine(EngineAPI):
 
         return results
 
+    def is_ready(self):
+        """Check if engine is ready for computation."""
+        return self._executor != None
+
     def prepare(self) -> None:
         """Prepare the given computation for executor."""
-        pass
+        self._executor = ProcessPoolExecutor(max_workers=self._max_workers)
 
-    def run(self, output_all=False, **kwargs) -> dict:
+    def run(
+        self, on_network: NetworkAPI = None, output_all: bool = False, **kwargs
+    ) -> dict:
         """Runs the computational network and returns the result object."""
+        if on_network:
+            self._network = on_network
+
         self._network._set_input(kwargs)
 
         results = {}
@@ -68,6 +75,10 @@ class LocalEngine(EngineAPI):
         }
         return results_filter
 
-    def register():
-        """Registers the computational network with RedisGears."""
+    def register(self):
+        """Registers the computational network with external executor."""
         raise NotImplementedError
+
+    def teardown(self):
+        """Cleanup phase."""
+        self._executor.shutdown(wait=True)
