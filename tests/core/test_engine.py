@@ -1,7 +1,7 @@
 from test import add
 
-from datagears.engine.engine import LocalEngine
-from datagears.engine.network import Network
+from datagears.core.engine import LocalEngine
+from datagears.core.network import Network
 
 
 def test_local_engine():

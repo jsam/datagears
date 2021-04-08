@@ -1,6 +1,7 @@
 import pytest
+import cloudpickle
 
-from datagears.engine.network import Network
+from datagears.core.network import Network
 
 from . import *
 
@@ -28,3 +29,24 @@ def test_network_set_input():
     new_values = {"a": 1, "b": 2, "c": 3}
     network._set_input(new_values)
     assert network.inputs == new_values
+
+
+def test_network_serialization():
+    """Serialize network for remote execution."""
+    network = Network("my-network", outputs=[my_out])
+
+    result = network.run(a=4, b=10, c=3).result
+    assert result == {"my_out": 5.5}
+
+    engine = network._engine
+    network._engine = None
+    pickled_network = cloudpickle.dumps(network)
+    assert pickled_network
+
+    import pickle
+    original = pickle.loads(pickled_network)
+    original._engine = engine
+    result = original.run(a=4, b=10, c=3).result
+    assert result == {"my_out": 5.5}
+
+

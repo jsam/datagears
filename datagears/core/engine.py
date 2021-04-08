@@ -1,6 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from datagears.engine.api import EngineAPI, NetworkAPI
+from datagears.core.api import EngineAPI, NetworkAPI
 
 
 class LocalEngine(EngineAPI):
@@ -82,3 +82,4 @@ class LocalEngine(EngineAPI):
     def teardown(self):
         """Cleanup phase."""
         self._executor.shutdown(wait=True)
+

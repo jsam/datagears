@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional, Type
 
 from networkx.classes.multidigraph import MultiDiGraph
 
-from datagears.engine.analysis import Signature
+from datagears.core.analysis import Signature
 
 
 class GearException(Exception):

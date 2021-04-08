@@ -1,4 +1,4 @@
-from datagears.engine.network import Depends
+from datagears.core.network import Depends
 
 
 def add(a, b=10) -> int:

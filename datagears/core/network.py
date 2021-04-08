@@ -1,15 +1,15 @@
 import inspect
 from concurrent import futures
-from typing import Any, Callable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from networkx import MultiDiGraph
 from networkx.algorithms.dag import descendants
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
-from datagears.engine.api import (EngineAPI, NetworkAPI, NetworkPlotAPI,
+from datagears.core.api import (EngineAPI, NetworkAPI, NetworkPlotAPI,
                                   NetworkRunAPI)
-from datagears.engine.engine import LocalEngine
-from datagears.engine.nodes import Gear, GearInput, GearInputOutput, GearOutput
+from datagears.core.engine import LocalEngine
+from datagears.core.nodes import Gear, GearInput, GearInputOutput, GearOutput
 
 
 class Depends:
@@ -22,7 +22,7 @@ class Depends:
     @property
     def gear(self):
         """Return function dependencies as a gear."""
-        from datagears.engine.nodes import Gear
+        from datagears.core.nodes import Gear
 
         return Gear(self._func)
 
@@ -42,7 +42,7 @@ class NetworkPropertyMixin(NetworkAPI):
     @property
     def plot(self) -> NetworkPlotAPI:
         """Plot the network."""
-        from datagears.engine.plot import NetworkPlot
+        from datagears.core.plot import NetworkPlot
 
         return NetworkPlot(self._graph)
 

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package datagears;
+
+// The request message containing the user's name.
+message Ping {
+    string name = 1;
+  }
+  
+  // The response message containing the greetings
+  message Pong {
+    string message = 1;
+  }
+
+// The greeting service definition.
+service DataGears {
+  // Sends a greeting
+  rpc SayHello (Ping) returns (Pong) {}
+}
+
