@@ -4,7 +4,7 @@ import os
 import sys
 
 try:
-    from setuptools import setup
+    from setuptools import setup  # type: ignore[import]
 except ImportError:
     from distutils.core import setup
 
@@ -13,7 +13,7 @@ if sys.argv[-1] == "publish":
     os.system("python setup.py sdist upload")
     sys.exit()
 
-readme = open("README.rst").read()
+readme = open("README.md").read()
 doclink = """
 Documentation
 -------------
@@ -31,6 +31,7 @@ setup(
     url="https://github.com/jsam/datagears",
     packages=[
         "datagears",
+        "datagears.core",
     ],
     package_dir={"datagears": "datagears"},
     include_package_data=True,
@@ -43,11 +44,8 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
 )

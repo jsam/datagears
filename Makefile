@@ -24,16 +24,21 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 datagears test
+	flake8 datagears/core tests
+	mypy . --show-error-codes --platform win32 --platform darwin --platform linux
+
+format:
+	black .
+	isort .
 
 test:
-	py.test
+	pytest . -vvv --isort --flake8 --mypy --cache-clear -n auto --cov=datagears tests/
 
 test-all:
 	tox
 
 coverage:
-	coverage run --source datagears setup.py test
+	coverage run --source datagears setup.py tests
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
