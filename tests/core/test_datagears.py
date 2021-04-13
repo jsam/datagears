@@ -1,19 +1,16 @@
 """
 Tests for `datagears` module.
 """
-import pytest
-
-from datagears import datagears
 
 
 class TestDatagears(object):
     @classmethod
-    def setup_class(cls):
+    def setup_class(cls) -> None:
         pass
 
-    def test_something(self):
+    def test_something(self) -> None:
         pass
 
     @classmethod
-    def teardown_class(cls):
+    def teardown_class(cls) -> None:
         pass

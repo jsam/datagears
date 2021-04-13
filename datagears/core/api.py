@@ -1,19 +1,31 @@
 import abc
-from concurrent.futures import Future
-from typing import Dict, Union
+from typing import Any, Dict, List, Optional, Type
+
+import networkx
+import numpy
+
+from datagears.core.nodes import GearInput, GearNode, OutputNode
 
 
 class NetworkPlotAPI(metaclass=abc.ABCMeta):
     """Network plot actions."""
 
-    pass
+    @property
+    def show(self) -> None:
+        """Render pydot for viewing in Jupyter notebook."""
+        raise NotImplementedError
+
+    @property
+    def meta(self) -> Dict[str, Any]:
+        """Return metadata of network plot."""
+        raise NotImplementedError
 
 
 class NetworkAPI(metaclass=abc.ABCMeta):
     """Abstract class defining network actions."""
 
     @property
-    def graph(self):
+    def graph(self) -> networkx.MultiDiGraph:
         """Get computational graph representation."""
         raise NotImplementedError
 
@@ -23,39 +35,40 @@ class NetworkAPI(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def roots(self) -> list:
+    def roots(self) -> List[GearNode]:
         """Calculate ranks of gears in a network."""
         raise NotImplementedError
 
     @property
-    def input_shape(self) -> dict:
+    def input_shape(self) -> Dict[str, Type[Any]]:
         """Returns input shape of the computational graph."""
         raise NotImplementedError
 
     @property
-    def inputs(self) -> dict:
+    def inputs(self) -> List[GearInput]:
         """Return all inputs with values of a graph."""
+        raise NotImplementedError
+
+    @property
+    def outputs(self) -> List[OutputNode]:
+        """Return all outputs of a graph."""
+        raise NotImplementedError
+
+    @property
+    def results(self) -> Dict[str, Optional[numpy.ndarray]]:
+        """Return result of the network run."""
+        raise NotImplementedError
+
+    def compute_next(self) -> List[OutputNode]:
+        """Return next in line to compute nodes."""
         raise NotImplementedError
 
     def copy(self) -> "NetworkAPI":
         """Copy existing network."""
         raise NotImplementedError
 
-
-class NetworkRunAPI(NetworkAPI):
-    """Abstract class defining network run actions."""
-
-    @property
-    def result(self) -> Union[Dict, Future]:
-        """Return result of the network run."""
-        raise NotImplementedError
-
-
-class NetworkParentAPI(NetworkAPI):
-    """Abstract class definint network parent."""
-
-    def run(output_all: bool = False, **kwargs) -> NetworkRunAPI:
-        """Execute all gears in the network."""
+    def set_input(self, input_data: Dict[str, Any]) -> None:
+        """Set input data for the graph computation."""
         raise NotImplementedError
 
 
@@ -65,22 +78,18 @@ class EngineAPI(metaclass=abc.ABCMeta):
     def __init__(self, compute: NetworkAPI) -> None:
         raise NotImplementedError
 
-    def prepare(self):
+    def setup(self) -> None:
         """Prepare the given computation for executor."""
         raise NotImplementedError
 
-    def is_ready(self):
+    def is_ready(self) -> bool:
         """Check if engine is ready for computation."""
         raise NotImplementedError
 
-    def run(self) -> NetworkRunAPI:
+    def execute(self, network: NetworkAPI) -> NetworkAPI:
         """Runs the computational network and returns the result object."""
         raise NotImplementedError
 
-    def register():
-        """Registers the computational network with RedisGears."""
-        raise NotImplementedError
-
-    def teardown():
+    def teardown(self) -> None:
         """Cleanup phase."""
         raise NotImplementedError
