@@ -20,6 +20,10 @@ class NetworkPlotAPI(metaclass=abc.ABCMeta):
         """Return metadata of network plot."""
         raise NotImplementedError
 
+    def to_file(self, filename: str) -> None:
+        """Write plot to a file."""
+        raise NotImplementedError
+
 
 class NetworkAPI(metaclass=abc.ABCMeta):
     """Abstract class defining network actions."""
@@ -74,9 +78,6 @@ class NetworkAPI(metaclass=abc.ABCMeta):
 
 class EngineAPI(metaclass=abc.ABCMeta):
     """Executor which contains low level operations for communication with RedisGears."""
-
-    def __init__(self, compute: NetworkAPI) -> None:
-        raise NotImplementedError
 
     def setup(self) -> None:
         """Prepare the given computation for executor."""

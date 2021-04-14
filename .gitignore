@@ -1,4 +1,6 @@
 *.py[cod]
+.DS_Store
+wtf.png
 
 # C extensions
 *.so
@@ -46,3 +48,5 @@ __pycache__
 .pytest_cache
 .idea
 *.ipynb
+
+out_test.png

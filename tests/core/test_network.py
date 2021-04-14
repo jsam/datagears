@@ -1,4 +1,5 @@
 import pytest
+from numpy import array
 
 from datagears.core.network import Network
 from datagears.core.nodes import GearNode
@@ -63,3 +64,29 @@ def test_network_set_input(myfeature: Fixture[Network]) -> None:
 
     for input_node in network.inputs:
         assert new_values[input_node.name] == input_node.value
+
+
+def test_network_run(myfeature: Fixture[Network]) -> None:
+    """Test network run."""
+    network: Network = myfeature
+
+    result = network.run(a=1, b=3, c1=10)
+
+    assert result
+    output = {out.name: out.value for out in result.outputs}
+    expected = {"my_out": array([-6, 1]), "reduced": -6, "sum": 4, "add_one": 1}
+
+    assert str(output) == str(expected)
+
+    network._engine = None  # type: ignore
+    with pytest.raises(ValueError):
+        _ = network.run(a=1, b=3, c1=10)
+
+    from unittest.mock import Mock
+
+    network._engine = Mock()  # type: ignore
+    network._engine.is_ready = lambda: False  # type: ignore
+    network._engine.execute = lambda _1, **_2: {}  # type: ignore
+
+    _ = network.run(a=1, b=3, c1=10)
+    network._engine.setup.assert_called_once_with()  # type: ignore

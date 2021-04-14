@@ -16,6 +16,17 @@ class GearException(Exception):
         super().__init__(self.raised_exception)
 
 
+class InvalidGraph(Exception):
+    """Invalid graph structure found."""
+
+    def __init__(self, msg: str, **kwargs: Any) -> None:
+        """"Gear exception constructor."""
+        self.msg = msg
+        self.params: Dict[str, Any] = kwargs
+
+        super().__init__(msg)
+
+
 class GraphAssociationMixin:
     """Graph association mixin."""
 
