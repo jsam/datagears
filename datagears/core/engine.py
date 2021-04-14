@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from datagears.core.api import EngineAPI, NetworkAPI
-from datagears.core.nodes import GearNode, OutputNode
+from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
 
 
 class LocalEngine(EngineAPI):
@@ -23,7 +23,7 @@ class LocalEngine(EngineAPI):
 
             predeccesors: List[GearNode] = list(self._network.graph.predecessors(data_node))  # type: ignore
             if len(predeccesors) != 1:
-                raise NotImplementedError("found a compute node with multiple predecessors")
+                raise InvalidGraph(f"found a data node produced by multiple gears: {predeccesors}", gears=predeccesors)
 
             gear = predeccesors[0]
             result = gear(gear.input_values)

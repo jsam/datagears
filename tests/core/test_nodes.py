@@ -4,6 +4,7 @@ from inspect import Parameter
 from typing import Any, Dict
 
 import pytest
+from numpy import ndarray
 
 from tests.core import add, reduce
 
@@ -82,10 +83,24 @@ def test_standalone_gear_node() -> None:
         gear_node.input_values
 
 
+def test_graph_gear_node_exception() -> None:
+    """Check standalone gear node exception handling."""
+    from datagears.core.network import Network
+    from datagears.core.nodes import GearException
+
+    def f(p: int = 3) -> ndarray:
+        raise KeyError
+
+    mynet = Network("mynet", outputs=[f])
+    assert mynet.roots
+
+    gear_node = mynet.roots[0]
+    with pytest.raises(GearException):
+        gear_node()
+
+
 def test_graph_gear_node() -> None:
     """Check gear node with associated graph."""
-    from numpy import ndarray
-
     from datagears.core.network import Network
 
     def f(p: int = 3) -> ndarray:
