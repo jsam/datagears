@@ -1,4 +1,4 @@
-name: datagears tests
+name: datagears project
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-20.04
     steps:
     - name: checkout code
@@ -23,7 +23,7 @@ jobs:
         architecture: 'x64'
     
     - name: Install dependencies
-      run: poetry install --dev
+      run: pip install poetry && poetry install --dev
     
     - name: Run tests
       run: make test
