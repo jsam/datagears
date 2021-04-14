@@ -7,7 +7,7 @@ from networkx.algorithms.dag import descendants
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
 from datagears.core.api import EngineAPI, NetworkAPI, NetworkPlotAPI
-from datagears.core.engine import LocalEngine
+from datagears.core.engine import SerialEngine
 from datagears.core.nodes import DataNode, GearInput, GearInputOutput, GearNode, GearOutput, NetworkNode, OutputNode
 
 T = TypeVar("T")
@@ -111,7 +111,7 @@ class Network(NetworkPropertyMixin):
             self._add_gear(gear)
 
         if engine is None:
-            self._engine = LocalEngine()
+            self._engine = SerialEngine()
 
         super().__init__(self._graph)
 
