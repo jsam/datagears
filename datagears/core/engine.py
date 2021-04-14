@@ -4,11 +4,11 @@ from datagears.core.api import EngineAPI, NetworkAPI
 from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
 
 
-class LocalEngine(EngineAPI):
-    """Local engine executor."""
+class SerialEngine(EngineAPI):
+    """Serial engine executor."""
 
     def __init__(self) -> None:
-        """Local engine constructor."""
+        """Serial engine constructor."""
         self._network: Optional[NetworkAPI] = None
 
     def _submit_next(self) -> bool:
@@ -63,7 +63,7 @@ class LocalEngine(EngineAPI):
 #     """Dask engine executor."""
 
 #     def __init__(self) -> None:
-#         """Local engine constructor."""
+#         """Dask engine constructor."""
 #         from dask.distributed import Client
 
 #         self._executor: Optional[Client] = None

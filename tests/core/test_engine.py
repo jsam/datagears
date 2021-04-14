@@ -1,18 +1,18 @@
 import pytest
 
-from datagears.core.engine import LocalEngine
+from datagears.core.engine import SerialEngine
 from datagears.core.network import Network
 from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
 from tests.fixtures import Fixture
 
 
-class TestLocalEngine:
-    """Check all aspects of LocalEngine implementation."""
+class TestSerialEngine:
+    """Check all aspects of SerialEngine implementation."""
 
     def test_construction(self, myfeature: Fixture[Network]) -> None:
-        """Test local engine."""
+        """Test serial engine."""
         mynet: Network = myfeature
-        engine = LocalEngine()
+        engine = SerialEngine()
 
         assert engine.is_ready()
         engine.setup()
@@ -27,9 +27,9 @@ class TestLocalEngine:
             assert output_node.value is not None
 
     def test_partial_construction(self, myfeature: Fixture[Network]) -> None:
-        """Test LocalEngine partial construction."""
+        """Test SerialEngine partial construction."""
         mynet: Network = myfeature
-        engine = LocalEngine()
+        engine = SerialEngine()
 
         with pytest.raises(ValueError):
             _ = engine.execute(None, a=3, b=2, c=10)  # type: ignore
@@ -47,7 +47,7 @@ class TestLocalEngine:
     def test_submit_next_execution(self, myfeature: Fixture[Network]) -> None:
         """Check execution sequence."""
         mynet: Network = myfeature.copy()
-        engine = LocalEngine()
+        engine = SerialEngine()
 
         mynet.set_input({"a": 1, "b": 3, "c1": 10})
 
