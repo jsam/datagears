@@ -12,6 +12,10 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
     steps:
     - name: checkout code
       uses: actions/checkout@v2
@@ -19,9 +23,14 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v2.2.2
       with:
-        python-version: '>=3.7 <3.9'
+        python-version: ${{ matrix.python-version }}
         architecture: 'x64'
     
+    - name: Install system packages
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y graphviz
+
     - name: Install dependencies
       run: pip install poetry && poetry install
     
