@@ -24,5 +24,6 @@ def test_api_definition_setup(cls: Any) -> None:
             if isinstance(result, property):
                 result.fget(None)  # type: ignore
             else:
-                params = [None] * len(inspect.signature(result).parameters)
+                params = [None] * len([p for p in inspect.signature(result).parameters.values() if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD])
+
                 result(*params)

@@ -1,7 +1,8 @@
-from typing import Any, Dict, List, Optional
+from concurrent.futures import Future, ProcessPoolExecutor, as_completed
+from typing import Any, Dict, List, Optional, Tuple
 
 from datagears.core.api import EngineAPI, NetworkAPI
-from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
+from datagears.core.nodes import DataNode, GearNode, InvalidGraph, OutputNode
 
 
 class SerialEngine(EngineAPI):
@@ -57,6 +58,80 @@ class SerialEngine(EngineAPI):
             pass
 
         return self._network
+
+
+class PoolEngine(EngineAPI):
+    """Pool engine executor."""
+
+    def __init__(self, max_workers: int = 4) -> None:
+        """Pool engine constructor."""
+        self._network: Optional[NetworkAPI] = None
+        self._executor: Optional[ProcessPoolExecutor] = None
+        self._max_workers = max_workers
+
+    def _submit_next(self) -> Dict[str, Any]:
+        """Submit next batch of jobs to the pool."""
+        if self._network is None:
+            raise ValueError("computational graph not found")
+
+        if self._executor is None:
+            raise ValueError("engine not ready")
+
+        results: Dict[str, Any] = {}
+        futures: Dict[Future[Any], Tuple[DataNode, GearNode]] = {}
+
+        data_node: DataNode
+        gear_node: GearNode
+        for data_node in self._network.compute_next():
+            predeccesors: List[GearNode] = list(self._network.graph.predecessors(data_node))  # type: ignore
+            if len(predeccesors) != 1:
+                raise InvalidGraph(f"found a data node produced by multiple gears: {predeccesors}", gears=predeccesors)
+
+            gear_node = predeccesors[0]
+            future = self._executor.submit(gear_node, kwargs=gear_node.input_values)
+            futures[future] = (data_node, gear_node)
+
+        for future in as_completed(futures):
+            result_tpl: Tuple[DataNode, GearNode] = futures[future]
+            data_node, gear_node = result_tpl
+            value = future.result()
+
+            data_node.set_value(value)
+            results[gear_node.name] = value
+
+        return results
+
+    def is_ready(self) -> bool:
+        """Check if engine is ready for computation."""
+        return self._executor is not None
+
+    def setup(self) -> None:
+        """Prepare the given computation for executor."""
+        self._executor = ProcessPoolExecutor(max_workers=self._max_workers)
+
+    def execute(self, network: NetworkAPI, **kwargs: Any) -> NetworkAPI:
+        """Runs the computational network and returns the result object."""
+        if network is None:
+            raise ValueError("cannot execute empty network")
+
+        self._network = network
+        self._network.set_input(kwargs)
+
+        while self._submit_next():
+            pass
+
+        return self._network
+
+    def register(self) -> None:
+        """Registers the computational network with external executor."""
+        raise NotImplementedError
+
+    def teardown(self) -> None:
+        """Cleanup phase."""
+        if self._executor is None:
+            raise ValueError("engine not running")
+
+        self._executor.shutdown(wait=True)
 
 
 # class DaskEngine(EngineAPI):

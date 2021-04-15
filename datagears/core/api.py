@@ -87,7 +87,7 @@ class EngineAPI(metaclass=abc.ABCMeta):
         """Check if engine is ready for computation."""
         raise NotImplementedError
 
-    def execute(self, network: NetworkAPI) -> NetworkAPI:
+    def execute(self, network: NetworkAPI, **kwargs: Any) -> NetworkAPI:
         """Runs the computational network and returns the result object."""
         raise NotImplementedError
 
