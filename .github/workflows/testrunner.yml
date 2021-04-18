@@ -15,8 +15,9 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-    env:
-      DASK_SCHEDULER_ADDRESS: scheduler
+    
+    # env:
+    #   DASK_SCHEDULER_ADDRESS: scheduler
 
     # services:
       # Label used to access the service container
@@ -37,6 +38,9 @@ jobs:
     
     - name: start dask cluster
       run: docker-compose -f dask/docker-compose.yml up -d
+    
+    - name: check running services
+      run: docker-compose ps -a
 
     - name: setup python
       uses: actions/setup-python@v2.2.2
