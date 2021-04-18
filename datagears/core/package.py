@@ -52,7 +52,7 @@ class Package:
     @staticmethod
     def children(path: Path) -> List[str]:
         """"Return children of a directory."""
-        if not path.is_dir():
+        if path.exists() and not path.is_dir():
             raise ValueError
 
         return [_child.name for _child in path.iterdir()]
