@@ -135,12 +135,12 @@ class PoolEngine(EngineAPI):
         self._executor.shutdown(wait=True)
 
 
-def dask_install(requirements: List[str]) -> None:
-    """Install depedencies on cluster workers."""
-    import os
+# def dask_install(requirements: List[str]) -> None:
+#     """Install depedencies on cluster workers."""
+#     import os
 
-    aligned: str = " ".join(requirements)
-    os.system(f"pip install -U setuptools {aligned}")
+#     aligned: str = " ".join(requirements)
+#     os.system(f"pip install -U setuptools {aligned}")
 
 
 # def dask_clean() -> None:
@@ -166,6 +166,8 @@ class DaskEngine(EngineAPI):
 
         self._egg_path = egg_path
         self._config: Dict[str, Any] = config
+
+        self.dask_install = lambda os, aligned: os.system(f"pip install -U setuptools {aligned}")  # type: ignore
 
     def _submit_next(self) -> bool:
         """Submit next batch of jobs to the pool."""
@@ -201,13 +203,15 @@ class DaskEngine(EngineAPI):
 
     def setup(self) -> None:
         """Prepare the given computation for executor."""
+        import os
+
         from dask.distributed import Client
 
         self._executor = Client(self._address)
         _ = self._executor.get_versions(check=True)  # type: ignore
 
         self._executor.upload_file(str(self._egg_path))  # type: ignore
-        self._executor.run(dask_install, self._requirements)  # type: ignore
+        self._executor.run(self.dask_install, os, " ".join(self._requirements))  # type: ignore
         self._executor.wait_for_workers()  # type: ignore
 
     def is_ready(self) -> bool:
