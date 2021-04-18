@@ -32,7 +32,7 @@ format:
 	isort .
 
 test:
-	pytest . -vvv --isort --flake8 --mypy --cache-clear -n auto --cov=datagears tests/
+	pytest . -vvv --isort --flake8 --mypy --cache-clear --dist loadfile --max-worker-restart 0 -n auto --cov=datagears tests/
 
 test-all:
 	tox

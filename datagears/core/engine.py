@@ -1,4 +1,5 @@
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from datagears.core.api import EngineAPI, NetworkAPI
@@ -134,90 +135,107 @@ class PoolEngine(EngineAPI):
         self._executor.shutdown(wait=True)
 
 
-# class DaskEngine(EngineAPI):
-#     """Dask engine executor."""
+def dask_install(requirements: List[str]) -> None:
+    """Install depedencies on cluster workers."""
+    import os
 
-#     def __init__(self) -> None:
-#         """Dask engine constructor."""
-#         from dask.distributed import Client
+    aligned: str = " ".join(requirements)
+    os.system(f"pip install -U setuptools {aligned}")
 
-#         self._executor: Optional[Client] = None
-#         self._network: Optional[NetworkAPI] = None
 
-#     def _submit_next(self) -> bool:
-#         """Submit next batch of jobs to the pool."""
-#         if self._network is None:
-#             raise ValueError("network not found")
+# def dask_clean() -> None:
+#     """Cleanup previously deployed eggs."""
+#     import os
 
-#         if self._executor is None:
-#             raise ValueError("engine not found")
+#     os.system("find . -type f -name '*.egg' -delete")
 
-#         futures = {}
-#         gear: GearNode
-#         data_node: OutputNode
 
-#         for data_node in self._network.compute_next():
+class DaskEngine(EngineAPI):
+    """Dask engine executor."""
 
-#             predeccesors: List[GearNode] = list(
-#                 self._network.graph.predecessors(data_node)
-#             )
-#             if len(predeccesors) != 1:
-#                 raise NotImplementedError(
-#                     "found a compute node with multiple predecessors"
-#                 )
+    def __init__(self, address: str, requirements: List[str], egg_path: Path, **config: Any) -> None:
+        """Dask engine constructor."""
+        from dask.distributed import Client, as_completed  # type: ignore[import]
 
-#             gear = predeccesors[0]
-#             data_node.set_value(gear(gear.input_values))
+        self.as_completed = as_completed
+        self._executor: Optional[Client] = None
+        self._network: Optional[NetworkAPI] = None
 
-#             future = self._executor.submit(gear, kwargs=gear.input_values)  # type: ignore
-#             futures[future] = (data_node, gear)
+        self._address = address
+        self._requirements = requirements
 
-#         if not futures:
-#             return False
+        self._egg_path = egg_path
+        self._config: Dict[str, Any] = config
 
-#         for future in as_completed(futures):  # type: ignore
-#             data_node, gear = futures[future]  # type: ignore
-#             data_node.set_value(future.result())  # type: ignore
+    def _submit_next(self) -> bool:
+        """Submit next batch of jobs to the pool."""
+        if self._network is None:
+            raise ValueError("network not found")
 
-#         return True
+        if self._executor is None:
+            raise ValueError("engine not found")
 
-#     def setup(self) -> None:
-#         """Prepare the given computation for executor."""
-#         from dask.distributed import Client
+        futures = {}
+        gear: GearNode
+        data_node: OutputNode
 
-#         self._executor = Client("0.0.0.0:8786")
+        for data_node in self._network.compute_next():
+            predeccesors: List[GearNode] = list(self._network.graph.predecessors(data_node))  # type: ignore
+            if len(predeccesors) != 1:
+                raise InvalidGraph(f"found a data node produced by multiple gears: {predeccesors}", gears=predeccesors)
 
-#     def is_ready(self) -> bool:
-#         """Check if engine is ready for computation."""
-#         return self._executor != None
+            gear = predeccesors[0]
+            data_node.set_value(gear(gear.input_values))
 
-#     def execute(self, network: NetworkAPI, **kwargs: Dict[str, Any]) -> NetworkAPI:
-#         """Runs the computational network and returns the result object."""
-#         if network is None:
-#             raise ValueError("cannot execute empty network")
+            future = self._executor.submit(gear, kwargs=gear.input_values)  # type: ignore
+            futures[future] = (data_node, gear)
 
-#         if self._executor is None:
-#             raise ValueError
+        if not futures:
+            return False
 
-#         def _install_deps():
-#             import os
+        for future in self.as_completed(futures):  # type: ignore
+            data_node, gear = futures[future]  # type: ignore
+            data_node.set_value(future.result())  # type: ignore
 
-#             os.system("pip install networkx numpy")
+        return True
 
-#         self._executor.upload_file("/Users/sam/Datagears/datagears/dist/datagears-0.1.0-py3.8.egg")  # type: ignore
-#         self._executor.run(_install_deps)
+    def setup(self) -> None:
+        """Prepare the given computation for executor."""
+        from dask.distributed import Client
 
-#         self._network = network
-#         self._network.set_input(kwargs)
+        self._executor = Client(self._address)
+        _ = self._executor.get_versions(check=True)  # type: ignore
 
-#         while self._submit_next():
-#             pass
+        self._executor.upload_file(str(self._egg_path))  # type: ignore
+        self._executor.run(dask_install, self._requirements)  # type: ignore
+        self._executor.wait_for_workers()  # type: ignore
 
-#         return self._network
+    def is_ready(self) -> bool:
+        """Check if engine is ready for computation."""
+        return self._executor is not None
 
-#     def teardown(self):
-#         """Enging cleanup phase."""
-#         if self._executor is None:
-#             raise ValueError("engine not running")
+    def execute(self, network: NetworkAPI, **kwargs: Any) -> NetworkAPI:
+        """Runs the computational network and returns the result object."""
+        if network is None:
+            raise ValueError("cannot execute empty network")
 
-#         self._executor.shutdown()
+        if self._executor is None:
+            raise ValueError("engine is not ready")
+
+        self._network = network
+        self._network.set_input(kwargs)
+
+        while self._submit_next():
+            pass
+
+        return self._network
+
+    def teardown(self) -> None:
+        """Enging cleanup phase."""
+        if self._executor is None:
+            raise ValueError("engine not running")
+
+        self._executor.close()  # type: ignore
+
+        # NOTE: This will kill the entire grid.
+        # self._executor.shutdown()

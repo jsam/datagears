@@ -1,6 +1,8 @@
 *.py[cod]
 .DS_Store
 wtf.png
+mynet.png
+*.lock
 
 # C extensions
 *.so

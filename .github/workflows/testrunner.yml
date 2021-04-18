@@ -15,8 +15,25 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
+    env:
+      DASK_SCHEDULER_ADDRESS: scheduler
 
-    steps:
+    services:
+      # Label used to access the service container
+      scheduler:
+        image: daskdev/dask
+        hostname: dask-scheduler
+        ports:
+          - "8786:8786"
+          - "8787:8787"
+        command: ["dask-scheduler"]
+
+      worker:
+        image: daskdev/dask
+        hostname: dask-worker
+        command: ["dask-worker", "tcp://scheduler:8786"]
+    
+        steps:
     - name: checkout code
       uses: actions/checkout@v2
 
