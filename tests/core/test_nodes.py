@@ -6,12 +6,11 @@ from typing import Any, Dict
 import pytest
 from numpy import ndarray
 
-from tests.core import add, reduce
-
 
 def test_simple_func_analysis() -> None:
     """Test function analysis."""
     from datagears.core.nodes import Signature
+    from datagears.features.dummy import add
 
     sig = Signature(add)
 
@@ -29,6 +28,7 @@ def test_depends_func_analysis() -> None:
     """Test function analysis with expressed dependency."""
     from datagears.core.network import Depends
     from datagears.core.nodes import Signature
+    from datagears.features.dummy import reduce
 
     sig = Signature(reduce)
 

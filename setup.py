@@ -32,6 +32,7 @@ setup(
     packages=[
         "datagears",
         "datagears.core",
+        "datagears.features",
     ],
     package_dir={"datagears": "datagears"},
     include_package_data=True,

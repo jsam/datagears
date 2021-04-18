@@ -2,31 +2,29 @@
 
 [![image][]][1]
 
+Large-scale feature builder backed by high throughput feature store.
+---
 
-Library to design fast and lightweight computation graphs for Python with aim to provide large-scale data processing and inferencing engine for machine learning.
+To avoid duplicating work and foster better collaboration inside ML teams and between data scientist and operations, we decided to build a scalable feature builder which is backed by high troughput, centralized feature store which can easily horizontally scale its computational and storage resources. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period (from data exploration to production) for data scientists should be much faster. In our design we considered both perspectives - Data Scientists and DevOps, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
 
-## Features
+# Goals
 
-Main aim is to provide expresive library to design fast and lightweight computation graphs for Python.
+* Build reproducible, reusable and versioned features using lightweight computation graph
 
-It's focus is on all phases of machine learning process, including:
+* Easily share prebuilt features in a team
 
-1. **Data exploration phase:**
-      * Build reproducible on-the-fly data exploration through computation graphs 
-      * Benefit from full parallelism support
+* Enable easy continous deployment of your models
 
-2. **Continous training phase:** 
-      * Use computation graphs as data generators
-      * Track of hyperparameter tunning or architecture search
+* Enable reproducible evaluation stores for deployed models
 
-3. **Inference phase:** 
-    * Deploy computation graphs to production environments for efficient and fast inferencing pipeline 
-    * Track and monitor model degradations
+* Track and monitoring models performance and degradation
 
-## Getting started
+
+
+# Getting started
 
 ```python
-from datagears import Depends, Network
+from datagears import Depends, Feature
 
 
 def add(a, b) -> int:
@@ -41,7 +39,7 @@ def my_out(reduced: int = Depends(reduce)) -> float:
     return reduced / 2
 
 
-my_graph = Network(name="mynet", outputs=[my_out]) 
+my_graph = Feature(name="mynet", outputs=[my_out]) 
 my_graph.plot.view()
 ```
 

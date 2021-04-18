@@ -1,8 +1,11 @@
+import os
+
 import pytest
 
-from datagears.core.engine import PoolEngine, SerialEngine
+from datagears.core.engine import DaskEngine, PoolEngine, SerialEngine, dask_install
 from datagears.core.network import Network
 from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
+from datagears.core.package import Package
 from tests.fixtures import Fixture
 
 
@@ -131,3 +134,102 @@ class TestPoolEngine:
 
         engine.setup()
         engine.teardown()
+
+
+class TestDaskEngine:
+    """Check all aspects of DaskEngine implementation."""
+
+    engine: DaskEngine
+
+    @classmethod
+    def setup_class(cls) -> None:
+        """Setup engine for all tests."""
+        scheduler: str = os.getenv("DASK_SCHEDULER_ADDRESS", "0.0.0.0")
+        cls.engine = DaskEngine(
+            f"{scheduler}:8786",
+            ["networkx", "numpy"],
+            Package().make_egg(),
+        )
+
+        assert cls.engine.is_ready() is False
+        cls.engine.setup()
+
+    @classmethod
+    def teardown_class(cls) -> None:
+        """Teardown engine."""
+        _executor = cls.engine._executor  # type: ignore
+        cls.engine._executor = None  # type: ignore
+        with pytest.raises(ValueError):
+            cls.engine.teardown()
+
+        cls.engine._executor = _executor  # type: ignore
+        cls.engine.teardown()
+
+    def test_dask_install(self) -> None:
+        """Test dask install."""
+        import os
+        from unittest.mock import Mock
+
+        mock = Mock()
+        os.system = mock
+
+        dask_install(["networkx", "numpy"])
+        mock.assert_called()
+
+    def test_dask_execution(self, myfeature: Fixture[Network]) -> None:
+        """Test dask engine."""
+        # NOTE: Test network construction.
+        mynet: Network = myfeature.copy()
+        assert self.engine.is_ready() is True
+
+        new_net = self.engine.execute(mynet, a=5, b=20, c1=30)
+
+        assert new_net is not None
+        assert new_net.outputs
+        for output_node in new_net.outputs:
+            assert output_node.value is not None
+
+        # NOTE: Test exception raise in case of provided network is None
+        with pytest.raises(ValueError):
+            _ = self.engine.execute(None, a=3, b=2, c=10)  # type: ignore
+
+        # NOTE: Test exception raised in case executor not set.
+        _exec = self.engine._executor  # type: ignore
+        self.engine._executor = None  # type: ignore
+        with pytest.raises(ValueError):
+            _ = self.engine.execute(mynet, a=3, b=2, c=10)
+        self.engine._executor = _exec  # type: ignore
+
+        # NOTE: Test InvalidGraph structure.
+        mynet = myfeature.copy()
+        dst: OutputNode = mynet.outputs[-1]
+        another_gear = GearNode(lambda x: x ** 2)
+        mynet.graph.add_edge(another_gear, dst)  # type: ignore
+
+        with pytest.raises(InvalidGraph) as exp:
+            _ = self.engine.execute(mynet, a=5, b=20, c1=30)
+
+        assert exp.value.msg == "found a data node produced by multiple gears: [add_one, <lambda>]"
+        assert "gears" in exp.value.params.keys()
+
+        # NOTE: Test execution sequence.
+        mynet = myfeature.copy()
+        mynet.set_input({"a": 1, "b": 3, "c1": 10})
+
+        self.engine._network = mynet  # type: ignore
+        result = self.engine._submit_next()  # type: ignore
+        assert result is True
+
+        # NOTE: Test exception raised in case of not set executor.
+        _exec = self.engine._executor  # type: ignore
+        self.engine._executor = None  # type: ignore
+        with pytest.raises(ValueError):
+            self.engine._submit_next()  # type: ignore
+        self.engine._executor = _exec  # type: ignore
+
+        # NOTE: Test exception raised in case of not set network.
+        _net = self.engine._network  # type: ignore
+        self.engine._network = None  # type: ignore
+        with pytest.raises(ValueError):
+            self.engine._submit_next()  # type: ignore
+        self.engine._network = _net  # type: ignore
