@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from datagears.core.engine import DaskEngine, PoolEngine, SerialEngine, dask_install
+from datagears.core.engine import DaskEngine, PoolEngine, SerialEngine
 from datagears.core.network import Network
 from datagears.core.nodes import GearNode, InvalidGraph, OutputNode
 from datagears.core.package import Package
@@ -173,7 +173,7 @@ class TestDaskEngine:
         mock = Mock()
         os.system = mock
 
-        dask_install(["networkx", "numpy"])
+        self.engine.dask_install(os, ["networkx", "numpy"])  # type: ignore
         mock.assert_called()
 
     def test_dask_execution(self, myfeature: Fixture[Network]) -> None:
