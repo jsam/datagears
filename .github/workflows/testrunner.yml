@@ -40,7 +40,7 @@ jobs:
       run: docker-compose -f dask/docker-compose.yml up -d
     
     - name: check running services
-      run: docker-compose ps -a
+      run: docker ps -a
 
     - name: setup python
       uses: actions/setup-python@v2.2.2
