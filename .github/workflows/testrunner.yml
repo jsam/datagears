@@ -33,7 +33,7 @@ jobs:
         hostname: dask-worker
         command: ["dask-worker", "tcp://scheduler:8786"]
     
-        steps:
+    steps:
     - name: checkout code
       uses: actions/checkout@v2
 
