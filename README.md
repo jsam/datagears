@@ -5,15 +5,15 @@
 Large-scale feature builder backed by high throughput feature store.
 ---
 
-To avoid duplicating work and foster better collaboration inside ML teams and between data scientist and operations, we decided to build a scalable feature builder which is backed by high troughput, centralized feature store which can easily horizontally scale its computational and storage resources. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period (from data exploration to production) for data scientists should be much faster. In our design we considered both perspectives - Data Scientists and DevOps, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
+To avoid duplicating work and foster better collaboration inside ML teams and between data scientist and operations, we decided to build a scalable feature builder which is backed by high troughput, centralized feature store which can easily horizontally scale its computational and storage resources. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period (from data exploration to production) for data scientists should be much faster. In our design we considered both perspectives - data scientists and devops, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
 
 # Goals
 
-* Build reproducible, reusable and versioned features using lightweight computation graph
+* Build versioned and scalable ML features reusable in data explorations and production inferences
 
 * Easily share prebuilt features in a team
 
-* Enable easy continous deployment of your models
+* Enable easy continous deployment and evaluation of your models
 
 * Enable reproducible evaluation stores for deployed models
 
