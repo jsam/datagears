@@ -29,8 +29,8 @@ class NetworkAPI(metaclass=abc.ABCMeta):
     """Abstract class defining network actions."""
 
     @property
-    def tag(self) -> str:
-        """Network name and version."""
+    def identifier(self) -> int:
+        """Identifier containing name and version."""
         raise NotImplementedError
 
     @property

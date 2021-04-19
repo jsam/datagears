@@ -1,4 +1,5 @@
 import inspect
+import zlib
 from typing import Any, Callable, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
 
 import numpy
@@ -39,6 +40,12 @@ class NetworkPropertyMixin(NetworkAPI):
         self._version = version
 
         self._graph = graph
+
+    @property
+    def identifier(self) -> int:
+        """Identifier containing name and version."""
+        _id: int = zlib.crc32(bytes(f"{self._name}-{self._version}", "utf-8"))
+        return _id
 
     @property
     def graph(self) -> MultiDiGraph:

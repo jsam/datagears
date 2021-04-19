@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Iterator
 
 import pytest
+from filelock import FileLock
 
 from datagears.core.api import EngineAPI
 
@@ -18,16 +19,17 @@ def dask_engine(egg_path: Path) -> Iterator[EngineAPI]:
         ["networkx", "numpy"],
         egg_path,
     )
-
     assert engine.is_ready() is False
-    engine.setup()
 
-    yield engine
+    with FileLock("dask_engine.lock"):
+        engine.setup()
 
-    _executor = engine._executor  # type: ignore
-    engine._executor = None  # type: ignore
-    with pytest.raises(ValueError):
+        yield engine
+
+        _executor = engine._executor  # type: ignore
+        engine._executor = None  # type: ignore
+        with pytest.raises(ValueError):
+            engine.teardown()
+
+        engine._executor = _executor  # type: ignore
         engine.teardown()
-
-    engine._executor = _executor  # type: ignore
-    engine.teardown()
