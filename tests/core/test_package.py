@@ -22,6 +22,8 @@ class TestPackage:
         with pytest.raises(ValueError):
             Package.children(Path("setup.py"))
 
+        assert Package.children(Path("/tmp/doesnotexist")) == []
+
     def test_package_constructor(self) -> None:
         """Check package construction."""
         _cwd = Path(os.getcwd())
