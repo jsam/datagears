@@ -29,6 +29,11 @@ class NetworkAPI(metaclass=abc.ABCMeta):
     """Abstract class defining network actions."""
 
     @property
+    def tag(self) -> str:
+        """Network name and version."""
+        raise NotImplementedError
+
+    @property
     def graph(self) -> networkx.MultiDiGraph:
         """Get computational graph representation."""
         raise NotImplementedError
@@ -93,4 +98,16 @@ class EngineAPI(metaclass=abc.ABCMeta):
 
     def teardown(self) -> None:
         """Cleanup phase."""
+        raise NotImplementedError
+
+
+class FeatureStoreAPI(metaclass=abc.ABCMeta):
+    """Feature store actions."""
+
+    def set(self, tensor: numpy.ndarray, network: NetworkAPI) -> str:
+        """Store tensor to the store."""
+        raise NotImplementedError
+
+    def get(self, key: str) -> numpy.ndarray:
+        """Get tensor from the store."""
         raise NotImplementedError

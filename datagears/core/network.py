@@ -33,8 +33,11 @@ class Depends(Generic[T]):
 class NetworkPropertyMixin(NetworkAPI):
     """Network property mixin."""
 
-    def __init__(self, graph: MultiDiGraph) -> None:
+    def __init__(self, name: str, version: str, graph: MultiDiGraph) -> None:
         """Network property mixin."""
+        self._name = name
+        self._version = version
+
         self._graph = graph
 
     @property
@@ -99,6 +102,7 @@ class Network(NetworkPropertyMixin):
         self,
         name: str,
         outputs: Optional[List[Callable[..., numpy.ndarray]]] = None,
+        version: str = "0.1.0",
         engine: Optional[EngineAPI] = None,
     ) -> None:
         """Network constructor."""
@@ -113,7 +117,7 @@ class Network(NetworkPropertyMixin):
         if engine is None:
             self._engine = SerialEngine()
 
-        super().__init__(self._graph)
+        super().__init__(name, version, self._graph)
 
     def _attach_input(self, param: inspect.Parameter, dst: GearNode) -> None:
         """Attach input to the gear."""
