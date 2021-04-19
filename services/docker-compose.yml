@@ -13,3 +13,8 @@ services:
     image: daskdev/dask
     hostname: dask-worker
     command: ["dask-worker", "tcp://scheduler:8786"]
+
+  store:
+    image: redislabs/redisai:edge-cpu
+    ports:
+      - "6379:6379"

@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from datagears.core.api import EngineAPI, NetworkAPI, NetworkPlotAPI
+from datagears.core.api import EngineAPI, NetworkAPI, NetworkPlotAPI, FeatureStoreAPI
 
 
 @pytest.mark.parametrize(
@@ -12,6 +12,7 @@ from datagears.core.api import EngineAPI, NetworkAPI, NetworkPlotAPI
         NetworkPlotAPI,
         NetworkAPI,
         EngineAPI,
+        FeatureStoreAPI,
     ],
 )
 def test_api_definition_setup(cls: Any) -> None:
