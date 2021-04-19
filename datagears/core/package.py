@@ -55,7 +55,10 @@ class Package:
         if path.exists() and not path.is_dir():
             raise ValueError
 
-        return [_child.name for _child in path.iterdir()]
+        if path.exists():
+            return [_child.name for _child in path.iterdir()]
+
+        return []
 
     def make_egg(self) -> Path:
         """Creates an egg."""
