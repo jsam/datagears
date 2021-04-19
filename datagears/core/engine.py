@@ -168,6 +168,7 @@ class DaskEngine(EngineAPI):
         self._config: Dict[str, Any] = config
 
         self.dask_install = lambda os, aligned: os.system(f"pip install -U setuptools {aligned}")  # type: ignore
+        self.dask_clean = lambda os: os.system("find . -type f -name '*.egg' -delete")  # type: ignore
 
     def _submit_next(self) -> bool:
         """Submit next batch of jobs to the pool."""
@@ -209,6 +210,7 @@ class DaskEngine(EngineAPI):
 
         self._executor = Client(self._address)
         _ = self._executor.get_versions(check=True)  # type: ignore
+        self._executor.run(self.dask_clean, os)  # type: ignore
 
         self._executor.upload_file(str(self._egg_path))  # type: ignore
         self._executor.run(self.dask_install, os, " ".join(self._requirements))  # type: ignore

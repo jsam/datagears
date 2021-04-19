@@ -1,3 +1,6 @@
+import time
+import uuid
+
 import numpy
 import redisai as rai
 
@@ -14,10 +17,12 @@ class FeatureStore(FeatureStoreAPI):
         super().__init__()
 
     def set(self, tensor: numpy.ndarray, network: NetworkAPI) -> str:
-        """Store tensor to the store."""
-        key: str = f"{network.tag}-{}"
+        """Store tensor to the feature store."""
+        timestamp: str = str(int(time.time() * 1e3))  # NOTE: Milliseconds
+        key: str = f"{network.identifier}-{timestamp}-{uuid.uuid4().hex}"
+        self._conn.tensorset(key, tensor)  # type: ignore
         return key
 
     def get(self, key: str) -> numpy.ndarray:
         """Get tensor from the store."""
-        return numpy.array([2])
+        return self._conn.tensorget(key, as_numpy=True)  # type: ignore

@@ -3,12 +3,16 @@ from pathlib import Path
 from typing import Iterator
 
 import pytest
+from filelock import FileLock
 
 
 @pytest.fixture(scope="session")
 def egg_path() -> Iterator[Path]:
     """Create an egg package."""
     from datagears.core.package import Package
+
+    lck = FileLock("egg_fixture.lock")
+    lck.acquire()
 
     package = Package()
 
@@ -50,4 +54,7 @@ def egg_path() -> Iterator[Path]:
     # NOTE: Wipe everything and build an egg as expected.
     shutil.rmtree("dist")
     Package.BUILD_EGG_CMD = "python setup.py bdist_egg"  # type: ignore
+
     yield Package().make_egg()
+
+    lck.release()
