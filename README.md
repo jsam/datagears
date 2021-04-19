@@ -2,10 +2,10 @@
 
 [![image][]][1]
 
-Large-scale feature builder backed by high throughput feature store.
+Build large-scale feature pipelines and store them to high throughput feature store.
 ---
 
-To avoid duplicating work and foster better collaboration inside ML teams and between data scientist and operations, we decided to build a scalable feature builder which is backed by high troughput, centralized feature store which can easily horizontally scale its computational and storage resources. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period (from data exploration to production) for data scientists should be much faster. In our design we considered both perspectives - data scientists and devops, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
+To avoid duplicating work and foster better collaboration inside ML teams and between data scientist and operations, we decided to build a scalable feature pipeline builder which is backed by high troughput, centralized feature store which can easily horizontally scale its computational and storage resources. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period (from data exploration to production) for data scientists should be much faster. In our design we considered both perspectives - data scientists and devops, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
 
 # Goals
 
