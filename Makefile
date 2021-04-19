@@ -23,7 +23,7 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-lint:
+lint: clean
 	flake8 datagears/core tests
 	mypy . --show-error-codes --platform win32 --platform darwin --platform linux
 

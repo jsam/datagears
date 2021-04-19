@@ -1,5 +1,4 @@
 import os
-import shutil
 from pathlib import Path
 
 import pytest
@@ -49,34 +48,7 @@ class TestPackage:
 
         assert Path(os.getcwd()) == _cwd
 
-    def test_make_egg(self) -> None:
-        """Test make egg."""
-        package = Package()
-        egg_path = package.make_egg()
-        assert egg_path.exists()
-
-        dst = Path("".join([*str(egg_path).split(".egg"), "_copy", ".egg"]))
-        shutil.copyfile(egg_path, dst)
-
-        _rmtree = shutil.rmtree
-        shutil.rmtree = lambda x: x  # type: ignore
-        with pytest.raises(ValueError) as exp:
-            package.make_egg()
-        shutil.rmtree = _rmtree
-
-        assert str(exp.value) == "multiple eggs found"
-
-        _cwd = package._cwd  # type: ignore
-        package._cwd = None  # type: ignore
-        with pytest.raises(ValueError) as exp:
-            package.make_egg()
-
-        assert str(exp.value) == "cannot find setup.py"
-
-        Package.BUILD_EGG_CMD = "python setup.py sdist"  # type: ignore
-        package._cwd = _cwd  # type: ignore
-
-        with pytest.raises(ValueError) as exp:
-            package.make_egg()
-
-        assert str(exp.value) == "egg was not built"
+    def test_make_egg_exceptions(self, egg_path: Path) -> None:
+        """Test make egg exceptions."""
+        package = egg_path
+        assert package.exists() is True
