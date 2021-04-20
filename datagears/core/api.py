@@ -1,10 +1,10 @@
 import abc
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Type
 
 import networkx
 import numpy
 
-from datagears.core.nodes import GearInput, GearNode, OutputNode
+from datagears.core.nodes import GearInput, GearNode, GearOutput, OutputNode
 
 
 class NetworkPlotAPI(metaclass=abc.ABCMeta):
@@ -27,6 +27,16 @@ class NetworkPlotAPI(metaclass=abc.ABCMeta):
 
 class NetworkAPI(metaclass=abc.ABCMeta):
     """Abstract class defining network actions."""
+
+    @property
+    def name(self) -> str:
+        """Name of the feature."""
+        raise NotImplementedError
+
+    @property
+    def version(self) -> str:
+        """Version of the feature."""
+        raise NotImplementedError
 
     @property
     def identifier(self) -> int:
@@ -64,8 +74,8 @@ class NetworkAPI(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    def results(self) -> Dict[str, Optional[numpy.ndarray]]:
-        """Return result of the network run."""
+    def results(self) -> List[GearOutput]:
+        """Return results of the feature data flow."""
         raise NotImplementedError
 
     def compute_next(self) -> List[OutputNode]:

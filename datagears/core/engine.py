@@ -167,8 +167,9 @@ class DaskEngine(EngineAPI):
         self._egg_path = egg_path
         self._config: Dict[str, Any] = config
 
-        self.dask_install = lambda os, aligned: os.system(f"pip install -U setuptools {aligned}")  # type: ignore
+        self.dask_install = lambda os, aligned: os.system(f"pip install -U {aligned}")  # type: ignore
         self.dask_clean = lambda os: os.system("find . -type f -name '*.egg' -delete")  # type: ignore
+        self.dask_update = lambda os: os.system("pip install -U setuptools cloudpickle blosc lz4 msgpack numpy")  # type: ignore
 
     def _submit_next(self) -> bool:
         """Submit next batch of jobs to the pool."""
@@ -204,17 +205,23 @@ class DaskEngine(EngineAPI):
 
     def setup(self) -> None:
         """Prepare the given computation for executor."""
-        import os
+        import importlib
 
-        from dask.distributed import Client
+        from dask.distributed import Client, PipInstall
+        from distributed.diagnostics.plugin import UploadFile  # type: ignore[import]
 
         self._executor = Client(self._address)
-        _ = self._executor.get_versions(check=True)  # type: ignore
-        self._executor.run(self.dask_clean, os)  # type: ignore
+        install_deps = PipInstall(packages=self._requirements, pip_options=["--upgrade"], restart=True)
+        upload_egg = UploadFile(self._egg_path)
 
-        self._executor.upload_file(str(self._egg_path))  # type: ignore
-        self._executor.run(self.dask_install, os, " ".join(self._requirements))  # type: ignore
+        self._executor.run(lambda ilib: ilib.invalidate_caches(), importlib)  # type: ignore
+
+        self._executor.register_worker_plugin(install_deps, "install_deps")  # type: ignore
+        self._executor.register_worker_plugin(upload_egg, "upload_egg")  # type: ignore
+
         self._executor.wait_for_workers()  # type: ignore
+
+        _ = self._executor.get_versions(check=True)  # type: ignore
 
     def is_ready(self) -> bool:
         """Check if engine is ready for computation."""

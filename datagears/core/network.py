@@ -42,6 +42,16 @@ class NetworkPropertyMixin(NetworkAPI):
         self._graph = graph
 
     @property
+    def name(self) -> str:
+        """Name of the feature."""
+        return self._name
+
+    @property
+    def version(self) -> str:
+        """Version of the feature."""
+        return self._version
+
+    @property
     def identifier(self) -> int:
         """Identifier containing name and version."""
         _id: int = zlib.crc32(bytes(f"{self._name}-{self._version}", "utf-8"))
@@ -193,14 +203,12 @@ class Network(NetworkPropertyMixin):
         for name, value in input_data.items():
             inputs[name].set_value(value)
 
-    # @property
-    # def results(self) -> Dict[str, Optional[numpy.ndarray]]:
-    #     """Return result features of the network."""
-    #     _results: Dict[str, Optional[numpy.ndarray]] = {
-    #         fn.__name__: self.outputs.get(fn.__name__, None)
-    #         for fn in self._outputting_nodes
-    #     }
-    #     return _results
+    @property
+    def results(self) -> List[GearOutput]:
+        """Return results of the feature data flow."""
+        _results: List[GearOutput] = [output_node for output_node in self.outputs if isinstance(output_node, GearOutput) and self.name in str(output_node)]
+
+        return _results
 
     def run(self, **kwargs: Any) -> NetworkAPI:
         """Compute all data nodes of the network."""

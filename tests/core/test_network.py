@@ -20,6 +20,9 @@ def test_network_construction(myfeature: Fixture[Network]) -> None:
     assert plot
     assert plot.meta
 
+    assert network.name
+    assert network.version
+
     assert network.roots
     for gear in network.roots:
         assert isinstance(gear, GearNode)
@@ -77,6 +80,8 @@ def test_network_run(myfeature: Fixture[Network]) -> None:
     expected = {"my_out": array([-6, 1]), "reduced": -6, "sum": 4, "add_one": 1}
 
     assert str(output) == str(expected)
+
+    assert all([result.name in str(r) for r in result.results])
 
     network._engine = None  # type: ignore
     with pytest.raises(ValueError):
