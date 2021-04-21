@@ -14,7 +14,7 @@ help:
 clean: clean-build clean-pyc clean-locks
 
 clean-locks:
-	rm *.lock
+	rm -fr *.lock
 
 clean-build:
 	rm -fr build/

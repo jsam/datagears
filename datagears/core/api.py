@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Tuple, Type
 
 import networkx
 import numpy
@@ -114,10 +114,14 @@ class EngineAPI(metaclass=abc.ABCMeta):
 class FeatureStoreAPI(metaclass=abc.ABCMeta):
     """Feature store actions."""
 
-    def set(self, tensor: numpy.ndarray, network: NetworkAPI) -> str:
+    def set(self, tensor: numpy.ndarray, network: NetworkAPI) -> Tuple[str, str]:
         """Store tensor to the store."""
         raise NotImplementedError
 
     def get(self, key: str) -> numpy.ndarray:
         """Get tensor from the store."""
+        raise NotImplementedError
+
+    def get_keys(self, network: NetworkAPI, start: str = "-", end: str = "+", limit: int = 500) -> List[Tuple[str, str]]:
+        """Get slice of keys for a given features."""
         raise NotImplementedError

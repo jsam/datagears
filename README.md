@@ -2,10 +2,10 @@
 
 [![image][]][1]
 
-Powerful high throughput feature store for machine learning teams.
+Framework for building high throughput feature, model and evaluation stores for machine learning teams. 
 ---
 
-To avoid duplicating work and foster better collaboration inside ML teams and between data scientists and operations, we decided to build a scalable data-flow based feature builders which are backed by high troughput, centralized store which can be easily horizontally scaled - both in computation and storage. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period, from data exploration to production, for ML engineers should be much faster. In our design we considered both perspectives - data scientists and devops, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
+To avoid duplicating work and foster better collaboration inside ML teams and between data scientists and operations, we decided to build a scalable data-flow based feature builders which are backed by high troughput, centralized store which can be easily horizontally scaled - both in computation and storage, and easly reused in inference phases on deployed models. To achieve those goals we utilized the existing technologies and design principles from the Python ecosystem, so the ramp-up period, from data exploration to production, for ML engineers should be much faster. In our design we considered both perspectives - data scientists and devops, to enable ease of use during data exploration and model building phase and provide needed tools to productionize their results.
 
 # Goals
 
