@@ -17,7 +17,8 @@ jobs:
         python-version: [3.7, 3.8]
     
     # env:
-    #   DASK_SCHEDULER_ADDRESS: scheduler
+    #   DASK_SCHEDULER_URI: scheduler:8786
+    #   REDISAI_URI: redisai:6379
 
     # services:
       # Label used to access the service container
