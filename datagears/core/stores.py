@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 
@@ -12,7 +13,9 @@ class FeatureStore(FeatureStoreAPI):
 
     def __init__(self) -> None:
         """Feature store constructor."""
-        self._conn = rai.Client(host="0.0.0.0", port=6379)  # type: ignore
+        server: str = os.getenv("REDISAI_URI", "0.0.0.0:6379")
+        host, port = server.split(":")
+        self._conn = rai.Client(host=host, port=int(port))  # type: ignore
 
         super().__init__()
 
