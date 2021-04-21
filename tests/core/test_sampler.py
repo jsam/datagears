@@ -37,8 +37,12 @@ class TestSampler:
         samples = Sampler(store_feature, feature_store=feature_store).build().as_numpy
         assert samples.shape == (1, 1, 2)
 
-    def test_samples_offset(self, store_feature: Network) -> None:
-        """Test network run with offset."""
+    def test_sampler_offset(self, store_feature: Network) -> None:
+        """Test sampler with offset."""
+        pass
+
+    def test_sampler_feature_aggregate(self, store_feature: Network) -> None:
+        """Test feature aggregation."""
         pass
 
     def test_sampler_exceptions(self, store_feature: Network) -> None:
