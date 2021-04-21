@@ -13,9 +13,9 @@ def dask_engine(egg_path: Path) -> Iterator[EngineAPI]:
     """Create and setup dask engine."""
     from datagears.core.engine import DaskEngine
 
-    scheduler: str = os.getenv("DASK_SCHEDULER_ADDRESS", "0.0.0.0")
+    scheduler: str = os.getenv("DASK_SCHEDULER_URI", "0.0.0.0:8786")
     engine = DaskEngine(
-        f"{scheduler}:8786",
+        f"{scheduler}",
         ["networkx", "numpy"],
         egg_path,
     )

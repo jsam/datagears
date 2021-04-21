@@ -11,7 +11,10 @@ help:
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
 
-clean: clean-build clean-pyc
+clean: clean-build clean-pyc clean-locks
+
+clean-locks:
+	rm *.lock
 
 clean-build:
 	rm -fr build/
