@@ -1,13 +1,13 @@
 import inspect
 import zlib
-from typing import Any, Callable, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, List, Optional, Set, Tuple, Type, TypeVar, Union
 
 import numpy
 from networkx import MultiDiGraph
 from networkx.algorithms.dag import descendants
 from networkx.algorithms.traversal.breadth_first_search import bfs_edges
 
-from datagears.core.api import EngineAPI, NetworkAPI, NetworkPlotAPI
+from datagears.core.api import EngineAPI, FeatureStoreAPI, NetworkAPI, NetworkPlotAPI
 from datagears.core.engine import SerialEngine
 from datagears.core.nodes import DataNode, GearInput, GearInputOutput, GearNode, GearOutput, NetworkNode, OutputNode
 
@@ -121,10 +121,14 @@ class Network(NetworkPropertyMixin):
         outputs: Optional[List[Callable[..., numpy.ndarray]]] = None,
         version: str = "0.1.0",
         engine: Optional[EngineAPI] = None,
+        feature_store: Optional[FeatureStoreAPI] = None,
     ) -> None:
         """Network constructor."""
         self._outputting_nodes = outputs or []
         self._graph: MultiDiGraph = MultiDiGraph(name=name)
+        self._feature_store = feature_store
+
+        self._last_results: List[Tuple[str, str]]
 
         for output in self._outputting_nodes:
             gear = GearNode(output, graph=self._graph)
@@ -191,7 +195,7 @@ class Network(NetworkPropertyMixin):
 
     def copy(self) -> "Network":
         """Create a copy of an `Network` instance."""
-        return Network(self._graph.name, outputs=self._outputting_nodes)  # type: ignore
+        return Network(self._graph.name, outputs=self._outputting_nodes, version=self._version)  # type: ignore
 
     def set_input(self, input_data: Dict[str, Any]) -> None:
         """Set input data for the graph computation."""
@@ -218,4 +222,9 @@ class Network(NetworkPropertyMixin):
         if not self._engine.is_ready():
             self._engine.setup()
 
-        return self._engine.execute(self.copy(), **kwargs)
+        network_run = self._engine.execute(self.copy(), **kwargs)
+
+        if self._feature_store is not None:
+            self._last_results = [self._feature_store.set(out.value, network_run) for out in network_run.results]
+
+        return network_run

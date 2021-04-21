@@ -1,10 +1,6 @@
 import importlib
 
-CORE_FIXTURES = [
-    "tests.core.fixtures.features",
-    "tests.core.fixtures.package",
-    "tests.core.fixtures.engine",
-]
+CORE_FIXTURES = ["tests.core.fixtures.features", "tests.core.fixtures.package", "tests.core.fixtures.engine", "tests.core.fixtures.stores"]
 
 
 INCLUDE_FIXTURES = CORE_FIXTURES
