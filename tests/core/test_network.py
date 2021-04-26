@@ -22,6 +22,7 @@ def test_network_construction(myfeature: Fixture[Network]) -> None:
 
     assert network.name
     assert network.version
+    assert str(network) == "my-network-0.1.0"
 
     assert network.roots
     for gear in network.roots:

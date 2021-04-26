@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import networkx
 import numpy
@@ -82,7 +82,7 @@ class NetworkAPI(metaclass=abc.ABCMeta):
         """Return next in line to compute nodes."""
         raise NotImplementedError
 
-    def copy(self) -> "NetworkAPI":
+    def copy(self, name: Optional[str] = None, version: Optional[str] = None) -> "NetworkAPI":
         """Copy existing network."""
         raise NotImplementedError
 

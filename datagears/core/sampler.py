@@ -38,13 +38,14 @@ class Sampler:
 
         while len(keys) < self._limit:
             batch = self._feature_store.get_keys(feature, start=start)
-            if batch[-1][0] == start:
+
+            if not batch or batch[-1][0] == start:
                 break
 
             start = batch[-1][0]
             keys += batch
 
-        keys = keys[: self._limit]  # NOTE: This could be dumped without data network serialization.
+        keys = keys[self._offset : self._limit]  # NOTE: This could be dumped without data network serialization.
 
         tensor: List[numpy.ndarray] = [self._feature_store.get(key[1]) for key in keys]
         return numpy.array(tensor)  # type: ignore
