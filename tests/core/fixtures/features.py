@@ -21,5 +21,4 @@ def store_feature() -> Network:
     from datagears.features.dummy import my_out
 
     network = Network("my-network", outputs=[my_out], feature_store=FeatureStore())
-
     return network

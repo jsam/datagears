@@ -41,6 +41,10 @@ class NetworkPropertyMixin(NetworkAPI):
 
         self._graph = graph
 
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"{self._name}-{self._version}"
+
     @property
     def name(self) -> str:
         """Name of the feature."""
@@ -193,9 +197,12 @@ class Network(NetworkPropertyMixin):
 
         return result
 
-    def copy(self) -> "Network":
+    def copy(self, name: Optional[str] = None, version: Optional[str] = None) -> "Network":
         """Create a copy of an `Network` instance."""
-        return Network(self._graph.name, outputs=self._outputting_nodes, version=self._version)  # type: ignore
+        _version = version or self._version
+        _name = name or self._name
+
+        return Network(_name, outputs=self._outputting_nodes, version=_version, feature_store=self._feature_store)  # type: ignore
 
     def set_input(self, input_data: Dict[str, Any]) -> None:
         """Set input data for the graph computation."""
