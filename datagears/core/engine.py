@@ -210,8 +210,8 @@ class DaskEngine(EngineAPI):
         from dask.distributed import Client, PipInstall
         from distributed.diagnostics.plugin import UploadFile  # type: ignore[import]
 
-        self._executor = Client(self._address)
-        install_deps = PipInstall(packages=self._requirements, pip_options=["--upgrade"], restart=True)
+        self._executor = Client(self._address, timeout=30)
+        install_deps = PipInstall(packages=self._requirements, pip_options=["--upgrade"])
         upload_egg = UploadFile(self._egg_path)
 
         self._executor.run(lambda ilib: ilib.invalidate_caches(), importlib)  # type: ignore
@@ -219,8 +219,7 @@ class DaskEngine(EngineAPI):
         self._executor.register_worker_plugin(install_deps, "install_deps")  # type: ignore
         self._executor.register_worker_plugin(upload_egg, "upload_egg")  # type: ignore
 
-        self._executor.wait_for_workers()  # type: ignore
-
+        self._executor.wait_for_workers(timeout=10)  # type: ignore
         _ = self._executor.get_versions(check=True)  # type: ignore
 
     def is_ready(self) -> bool:
