@@ -1,0 +1,9 @@
+[package]
+name = "datagears"
+version = "0.1.0"
+edition = "2021"
+crate-type = ["cdylib"]
+
+[dependencies.cpython]
+version = "0.7"
+features = ["extension-module"]
