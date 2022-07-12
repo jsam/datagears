@@ -1,4 +1,4 @@
-
+pub mod gear;
 
 #[cfg(test)]
 mod tests{
