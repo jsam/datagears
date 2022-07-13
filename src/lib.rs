@@ -1,5 +1,6 @@
 pub mod communications;
 pub mod config;
+pub mod datagears;
 pub mod errors;
 pub mod gear;
 pub mod models;
