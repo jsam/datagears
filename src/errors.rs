@@ -1,6 +1,6 @@
 use std::result;
 use thiserror::Error;
-
+use tract_core::tract_data::TractError;
 
 pub type Result<T> = result::Result<T, DGError>;
 
@@ -25,7 +25,7 @@ pub enum DGError {
     #[error("DataGears: Python Callee Error: {0}")]
     OsStringCnvError(String),
     #[error("OrkDataGearshon: Model Backend Error: {0}")]
-    ModelBackendError(#[from] tract_core::TractError),
+    ModelBackendError(#[from] TractError),
     #[error("DataGears: IO Error: {0}")]
     IOError(#[from] std::io::Error),
 }
