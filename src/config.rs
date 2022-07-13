@@ -1,6 +1,6 @@
 use tract_onnx::tract_hir::infer::InferenceFact;
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct DGConfig {
     pub auto_load_input_facts: bool,
     pub default_input_fact_shape: Option<InferenceFact>,

@@ -14,7 +14,7 @@ use crate::{
     services::{PyModelService, Service},
 };
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct PyModel {
     pub name: &'static str,
     pub module_path: PathBuf,
