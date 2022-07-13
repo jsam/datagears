@@ -8,7 +8,7 @@ use pyo3::{
 use crate::{
     communications::{DGRequest, DGResponse, PyModelRequest},
     config::DGConfig,
-    errors::{DGError, Result},
+    errors::{DGError, Result}, services::Service,
 };
 
 #[derive(Default)]
@@ -123,5 +123,16 @@ impl PyModel {
             .map(|resp| DGResponse::<PyObject> {
                 body: resp.to_object(py),
             })
+    }
+}
+
+
+impl Service for PyModel {
+    fn load(&mut self) -> Result<()> {
+        if !self.module_path.exists() {
+            let _err = format!("module doesn't exists: {}", self.module_path.to_str().unwrap());
+            return Err(DGError::PyModuleError(_err));
+        }
+        return Ok(())
     }
 }
