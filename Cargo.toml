@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 crate-type = ["cdylib"]
 
+[dependencies]
+thiserror = "1.0"
+
 [dependencies.pyo3]
 version = "0.16.5"

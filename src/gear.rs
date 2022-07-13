@@ -6,6 +6,10 @@ pub struct Gear {
 }
 
 impl Gear {
+    pub fn init(&self) {
+        pyo3::prepare_freethreaded_python()
+    }
+
     pub fn run(&self) -> PyResult<()> {
         Python::with_gil(|py| {
             let sys = py.import("sys")?;
@@ -30,6 +34,8 @@ mod tests {
         let gear = Gear {
             pycode: "".to_string(),
         };
+
+        gear.init();
         gear.run();
     }
 }
