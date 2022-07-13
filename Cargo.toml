@@ -6,6 +6,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 thiserror = "1.0"
+tract-core = "0.17.2"
+tract-onnx = "0.17.2"
+smallvec = "1.4"
+futures-util = "0.3"
+async-trait = "0.1"
 
 [dependencies.pyo3]
 version = "0.16.5"
