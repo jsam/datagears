@@ -37,7 +37,7 @@ pub(crate) trait DGResponseBase<T> {}
 impl<T> DGRequestBase<T> for T {}
 impl<T> DGResponseBase<T> for T {}
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct PyModelRequest<K, V, T>
 where
     K: hash::Hash + cmp::Eq + Default + ToPyObject,
@@ -71,13 +71,16 @@ where
     }
 }
 
+#[derive(Default, Debug)]
 pub struct PyModelResponse {
     response: Option<PyDict>,
 }
 
 impl PyModelResponse {
     pub fn new() -> Self {
-        PyModelResponse { response: None }
+        PyModelResponse {
+            ..Default::default()
+        }
     }
 }
 
