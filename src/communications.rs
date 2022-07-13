@@ -1,5 +1,6 @@
+use pyo3::{types::PyDict, ToPyObject};
 use smallvec::SmallVec;
-use std::sync::Arc;
+use std::{cmp, collections::HashMap, hash, sync::Arc};
 
 use tract_core::prelude::*;
 
@@ -36,6 +37,7 @@ pub(crate) trait DGResponseBase<T> {}
 impl<T> DGRequestBase<T> for T {}
 impl<T> DGResponseBase<T> for T {}
 
+#[derive(Default)]
 pub struct PyModelRequest<K, V, T>
 where
     K: hash::Hash + cmp::Eq + Default + ToPyObject,
@@ -58,7 +60,7 @@ where
         }
     }
 
-    pub fn with_args(mut self, args: HashMap<K, v>) -> Self {
+    pub fn with_args(mut self, args: HashMap<K, V>) -> Self {
         self.args = args;
         self
     }
@@ -69,16 +71,13 @@ where
     }
 }
 
-#[derive(Default, Debug, Clone)]
 pub struct PyModelResponse {
-    response: PyDict,
+    response: Option<PyDict>,
 }
 
 impl PyModelResponse {
     pub fn new() -> Self {
-        PyModelResponse {
-            ..Default::default()
-        }
+        PyModelResponse { response: None }
     }
 }
 
