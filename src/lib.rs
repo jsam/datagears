@@ -1,11 +1,8 @@
-
+pub mod gear;
 
 #[cfg(test)]
-mod tests{
+mod tests {
 
     #[test]
-    fn test_gear() {
-
-    }
-
+    fn test_gear() {}
 }
