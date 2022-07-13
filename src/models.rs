@@ -1,5 +1,7 @@
-use std::{cmp, fs, hash, path::PathBuf};
+use std::{cmp, fs, hash, path::PathBuf, sync::mpsc, thread};
 
+use async_trait::async_trait;
+use futures_util::future::FutureObj;
 use pyo3::{
     types::{IntoPyDict, PyList, PyModule, PyString, PyTuple},
     PyObject, Python, ToPyObject,
@@ -8,10 +10,11 @@ use pyo3::{
 use crate::{
     communications::{DGRequest, DGResponse, PyModelRequest},
     config::DGConfig,
-    errors::{DGError, Result}, services::Service,
+    errors::{DGError, Result},
+    services::{PyModelService, Service},
 };
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct PyModel {
     pub name: &'static str,
     pub module_path: PathBuf,
@@ -73,6 +76,9 @@ impl PyModel {
         // TODO: Please, fix this!
         let source = fs::read_to_string(module_file.as_str()).unwrap();
 
+        // TODO: This will spawn interpreter per process.
+        // NOTE: Both, this and above fs::read can be optimized away by keeping interpreters warm.
+        // NOTE: Since, overhead of having an interpreter is already quite high we will not optimize this for now.
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -126,13 +132,44 @@ impl PyModel {
     }
 }
 
-
 impl Service for PyModel {
     fn load(&mut self) -> Result<()> {
         if !self.module_path.exists() {
-            let _err = format!("module doesn't exists: {}", self.module_path.to_str().unwrap());
+            let _err = format!(
+                "module doesn't exists: {}",
+                self.module_path.to_str().unwrap()
+            );
             return Err(DGError::PyModuleError(_err));
         }
-        return Ok(())
+        return Ok(());
+    }
+}
+
+#[async_trait]
+impl PyModelService for PyModel {
+    type FutType = FutureObj<'static, Result<DGResponse<PyObject>>>;
+
+    async fn async_process<K: 'static, V: 'static, T: 'static>(
+        &'static self,
+        request: DGRequest<PyModelRequest<K, V, T>>,
+    ) -> Self::FutType
+    where
+        K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
+        V: Default + ToPyObject + Send,
+        T: Default + ToPyObject + Send,
+    {
+        let mut _clone = self.clone();
+
+        FutureObj::new(Box::new(async move {
+            let (tx, rx) = mpsc::channel();
+            let _ = thread::spawn(move || {
+                let resp = _clone.process(request);
+
+                let _ = tx.send(resp);
+            });
+
+            let result = rx.recv().unwrap();
+            result
+        }))
     }
 }
