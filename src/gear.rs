@@ -36,6 +36,6 @@ mod tests {
         };
 
         gear.init();
-        gear.run();
+        let _ = gear.run();
     }
 }
