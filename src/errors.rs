@@ -1,3 +1,4 @@
+use pyo3::PyErr;
 use std::result;
 use thiserror::Error;
 use tract_core::tract_data::TractError;
@@ -28,4 +29,10 @@ pub enum DGError {
     ModelBackendError(#[from] TractError),
     #[error("DataGears: IO Error: {0}")]
     IOError(#[from] std::io::Error),
+}
+
+impl From<PyErr> for DGError {
+    fn from(err: PyErr) -> Self {
+        DGError::PyCallError(err.to_string())
+    }
 }

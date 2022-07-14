@@ -16,7 +16,7 @@ pub(crate) trait PyModelService {
     type FutType;
 
     async fn async_process<K: 'static, V: 'static, T: 'static>(
-        &'static self,
+        &self,
         request: DGRequest<PyModelRequest<K, V, T>>,
     ) -> Self::FutType
     where
