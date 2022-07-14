@@ -11,7 +11,23 @@ tract-onnx = "0.17.2"
 smallvec = "1.4"
 futures-util = "0.3"
 async-trait = "0.1"
-tokio = "1.19.2"
 
 [dependencies.pyo3]
 version = "0.16.5"
+
+[dev-dependencies]
+tokio = "1.20.0"
+criterion = { version = "0.3", features = ["html_reports", "async_tokio"] }
+
+[[bench]]
+name = "bench_sync_pymodel"
+harness = false
+
+
+# [profile.bench]
+# opt-level = 3
+# debug = false
+# rpath = false
+# lto = false
+# debug-assertions = false
+# codegen-units = 1

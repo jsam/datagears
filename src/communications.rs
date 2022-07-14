@@ -1,7 +1,6 @@
-use pyo3::{types::PyDict, ToPyObject};
+use pyo3::{types::PyDict, FromPyObject, PyAny, PyErr, PyObject, ToPyObject};
 use smallvec::SmallVec;
-use std::{cmp, collections::HashMap, hash, sync::Arc};
-
+use std::{any::Any, cmp, collections::HashMap, hash, sync::Arc};
 use tract_core::prelude::*;
 
 pub enum Types {
@@ -71,9 +70,12 @@ where
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, FromPyObject)]
 pub struct PyModelResponse {
-    response: Option<PyDict>,
+    #[pyo3(item("response"))]
+    response: String,
+    #[pyo3(item("error"))]
+    error: String,
 }
 
 impl PyModelResponse {

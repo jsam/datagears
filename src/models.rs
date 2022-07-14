@@ -1,14 +1,14 @@
-use std::{cmp, fs, hash, path::PathBuf, sync::mpsc, thread};
+use std::{any::Any, cmp, collections::HashMap, fs, hash, path::PathBuf, sync::mpsc, thread};
 
 use async_trait::async_trait;
 use futures_util::future::FutureObj;
 use pyo3::{
-    types::{IntoPyDict, PyList, PyModule, PyString, PyTuple},
-    PyObject, Python, ToPyObject,
+    types::{IntoPyDict, PyDict, PyList, PyModule, PyString, PyTuple},
+    FromPyObject, PyObject, Python, ToPyObject,
 };
 
 use crate::{
-    communications::{DGRequest, DGResponse, PyModelRequest},
+    communications::{DGRequest, DGResponse, PyModelRequest, PyModelResponse},
     config::DGConfig,
     errors::{DGError, Result},
     services::{PyModelService, Service},
@@ -54,7 +54,7 @@ impl PyModel {
     pub fn process<K: 'static, V: 'static, T: 'static>(
         &mut self,
         request: DGRequest<PyModelRequest<K, V, T>>,
-    ) -> Result<DGResponse<PyObject>>
+    ) -> Result<DGResponse<PyModelResponse>>
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
         V: Default + ToPyObject + Send,
@@ -72,7 +72,7 @@ impl PyModel {
         module_path.push(module);
 
         let module_file = module_path.clone().into_os_string().into_string().unwrap();
-
+        println!("{:?}", module_file);
         // TODO: Please, fix this!
         let source = fs::read_to_string(module_file.as_str()).unwrap();
 
@@ -115,10 +115,10 @@ impl PyModel {
         let args = PyTuple::new(py, &[args_data]);
         let kwargs = request.body.kwargs.into_py_dict(py);
 
-        datamod
+        let py_result = datamod
             .call_method(self.requester_hook, args, Some(kwargs))
             .map_err(|e| {
-                e.print(py);
+                // e.print(py);
                 let err_msg: String = format!(
                     "Call failed over {:?}\n\
             \twith traceback",
@@ -126,9 +126,10 @@ impl PyModel {
                 );
                 DGError::PyModuleError(err_msg.to_owned())
             })
-            .map(|resp| DGResponse::<PyObject> {
-                body: resp.to_object(py),
-            })
+            .unwrap();
+
+        let response: PyModelResponse = py_result.extract()?;
+        Ok(DGResponse { body: response })
     }
 }
 
@@ -147,10 +148,10 @@ impl Service for PyModel {
 
 #[async_trait]
 impl PyModelService for PyModel {
-    type FutType = FutureObj<'static, Result<DGResponse<PyObject>>>;
+    type FutType = FutureObj<'static, Result<DGResponse<PyModelResponse>>>;
 
     async fn async_process<K: 'static, V: 'static, T: 'static>(
-        &'static self,
+        &self,
         request: DGRequest<PyModelRequest<K, V, T>>,
     ) -> Self::FutType
     where
@@ -163,7 +164,7 @@ impl PyModelService for PyModel {
         FutureObj::new(Box::new(async move {
             let (tx, rx) = mpsc::channel();
             let _ = thread::spawn(move || {
-                let resp = _clone.process(request);
+                let resp = _clone.process::<K, V, T>(request);
 
                 let _ = tx.send(resp);
             });

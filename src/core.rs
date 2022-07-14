@@ -1,10 +1,11 @@
-use std::{cmp, collections::HashMap, hash, path::PathBuf, sync::Arc};
+use std::{cmp, collections::HashMap, fmt::Display, hash, path::PathBuf, sync::Arc};
 
 use futures_util::{future::FutureObj, TryFutureExt};
-use pyo3::{PyObject, ToPyObject};
+use pyo3::{FromPyObject, PyObject, ToPyObject};
+use tract_core::ndarray::Data;
 
 use crate::{
-    communications::{DGRequest, DGResponse, PyModelRequest},
+    communications::{DGRequest, DGResponse, PyModelRequest, PyModelResponse},
     config::DGConfig,
     errors::{DGError, Result},
     models::PyModel,
@@ -31,6 +32,12 @@ pub struct DataGears {
     config: DGConfig,
     py_services: HashMap<String, PyModel>,
     //ml_services: HashMap<String, MLModel>,
+}
+
+impl Display for DataGears {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DataGears()")
+    }
 }
 
 impl Default for DataGears {
@@ -91,31 +98,31 @@ impl DataGears {
         self
     }
 
-    pub fn py_run<K: 'static + Send, R: 'static + Send, T: 'static + Send>(
+    pub fn py_run<K: 'static + Send, V: 'static + Send, T: 'static + Send>(
         mut self,
         name: &str,
-        request: DGRequest<PyModelRequest<K, R, T>>,
-    ) -> Result<DGResponse<PyObject>>
+        request: DGRequest<PyModelRequest<K, V, T>>,
+    ) -> Result<DGResponse<PyModelResponse>>
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
-        R: Default + ToPyObject + Send,
+        V: Default + ToPyObject + Send,
         T: Default + ToPyObject + Send,
     {
         if let Some(modelbox) = self.py_services.get_mut(name) {
-            modelbox.process::<K, R, T>(request)
+            modelbox.process::<K, V, T>(request)
         } else {
             Err(DGError::ModelNotFound("model not found".to_string()))
         }
     }
 
-    pub async fn py_run_async<K: 'static + Send, R: 'static + Send, T: 'static + Send>(
-        &'static self,
+    pub async fn py_run_async<K: 'static + Send, V: 'static + Send, T: 'static + Send>(
+        &self,
         name: &str,
-        request: DGRequest<PyModelRequest<K, R, T>>,
-    ) -> FutureObj<Result<DGResponse<PyObject>>>
+        request: DGRequest<PyModelRequest<K, V, T>>,
+    ) -> FutureObj<Result<DGResponse<PyModelResponse>>>
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
-        R: Default + ToPyObject + Send,
+        V: Default + ToPyObject + Send,
         T: Default + ToPyObject + Send,
     {
         if let Some(modelbox) = self.py_services.get(name) {
