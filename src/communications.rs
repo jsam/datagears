@@ -1,6 +1,6 @@
-use pyo3::{types::PyDict, FromPyObject, PyAny, PyErr, PyObject, ToPyObject};
+use pyo3::{FromPyObject, ToPyObject};
 use smallvec::SmallVec;
-use std::{any::Any, cmp, collections::HashMap, hash, sync::Arc};
+use std::{cmp, collections::HashMap, hash, sync::Arc};
 use tract_core::prelude::*;
 
 pub enum Types {
