@@ -6,7 +6,7 @@ use tokio::runtime::Builder;
 use criterion::*;
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use datagears::communications::{DGRequest, DGResponse, PyModelRequest, PyModelResponse};
+use datagears::communications::{DGRequest, DGResponse, PyGearRequest, PyGearResponse};
 use datagears::config::DGConfig;
 use datagears::core::DataGears;
 use datagears::errors::Result;
@@ -26,9 +26,9 @@ pub fn datagears_benchmark(c: &mut Criterion) {
 
     c.bench_function("py_run_sync", |b| {
         b.iter(|| {
-            let result: Result<DGResponse<PyModelResponse>> = dg.clone().py_run(
+            let result: Result<DGResponse<PyGearResponse>> = dg.clone().py_run(
                 "pymodel",
-                DGRequest::with_body(PyModelRequest::<&str, &str, &str>::new()),
+                DGRequest::with_body(PyGearRequest::<&str, &str, &str>::new()),
             );
             println!("{:?}", result.unwrap());
         })
@@ -37,9 +37,9 @@ pub fn datagears_benchmark(c: &mut Criterion) {
     c.bench_function("py_run_sync_10k", |b| {
         b.iter(|| {
             for _ in 0..10000 {
-                let result: Result<DGResponse<PyModelResponse>> = dg.clone().py_run(
+                let result: Result<DGResponse<PyGearResponse>> = dg.clone().py_run(
                     "pymodel",
-                    DGRequest::with_body(PyModelRequest::<&str, &str, &str>::new()),
+                    DGRequest::with_body(PyGearRequest::<&str, &str, &str>::new()),
                 );
                 println!("{:?}", result.unwrap());
             }
@@ -56,7 +56,7 @@ pub fn datagears_benchmark(c: &mut Criterion) {
                 let mut vec = vec![];
                 let result = _dg.py_run_async(
                     "pymodel",
-                    DGRequest::with_body(PyModelRequest::<&str, &str, &str>::new()),
+                    DGRequest::with_body(PyGearRequest::<&str, &str, &str>::new()),
                 );
                 let mut _r = result.await;
                 vec.push(_r);
@@ -78,7 +78,7 @@ pub fn datagears_benchmark(c: &mut Criterion) {
                     //for _ in 0..5 {
                     let result = _dg.py_run_async(
                         "pymodel",
-                        DGRequest::with_body(PyModelRequest::<&str, &str, &str>::new()),
+                        DGRequest::with_body(PyGearRequest::<&str, &str, &str>::new()),
                     );
                     let mut _r = result.await;
                     vec.push(_r);
@@ -102,7 +102,7 @@ pub fn datagears_benchmark(c: &mut Criterion) {
                     //for _ in 0..5 {
                     let result = _dg.py_run_async(
                         "pymodel",
-                        DGRequest::with_body(PyModelRequest::<&str, &str, &str>::new()),
+                        DGRequest::with_body(PyGearRequest::<&str, &str, &str>::new()),
                     );
                     let mut _r = result.await;
                     vec.push(_r);

@@ -4,8 +4,8 @@ use std::{any::Any, cmp, collections::HashMap, hash, sync::Arc};
 use tract_core::prelude::*;
 
 pub enum Types {
-    PyModel,
-    MLModel,
+    PyGear,
+    MLGear,
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -37,7 +37,7 @@ impl<T> DGRequestBase<T> for T {}
 impl<T> DGResponseBase<T> for T {}
 
 #[derive(Default, Debug)]
-pub struct PyModelRequest<K, V, T>
+pub struct PyGearRequest<K, V, T>
 where
     K: hash::Hash + cmp::Eq + Default + ToPyObject,
     V: Default + ToPyObject,
@@ -47,14 +47,14 @@ where
     pub kwargs: HashMap<&'static str, T>,
 }
 
-impl<K, V, T> PyModelRequest<K, V, T>
+impl<K, V, T> PyGearRequest<K, V, T>
 where
     K: hash::Hash + cmp::Eq + Default + ToPyObject,
     V: Default + ToPyObject,
     T: Default + ToPyObject,
 {
     pub fn new() -> Self {
-        PyModelRequest {
+        PyGearRequest {
             ..Default::default()
         }
     }
@@ -71,29 +71,29 @@ where
 }
 
 #[derive(Default, Debug, FromPyObject)]
-pub struct PyModelResponse {
+pub struct PyGearResponse {
     #[pyo3(item("response"))]
     response: String,
     #[pyo3(item("error"))]
     error: String,
 }
 
-impl PyModelResponse {
+impl PyGearResponse {
     pub fn new() -> Self {
-        PyModelResponse {
+        PyGearResponse {
             ..Default::default()
         }
     }
 }
 
 #[derive(Default, Debug)]
-pub struct MLModelRequest {
+pub struct MLGearRequest {
     pub input: Tensor,
 }
 
-impl MLModelRequest {
+impl MLGearRequest {
     pub fn new() -> Self {
-        MLModelRequest {
+        MLGearRequest {
             ..Default::default()
         }
     }
@@ -105,13 +105,13 @@ impl MLModelRequest {
 }
 
 #[derive(Default, Debug)]
-pub struct MLModelResponse {
+pub struct MLGearResponse {
     pub output: SmallVec<[Arc<Tensor>; 4]>,
 }
 
-impl MLModelResponse {
+impl MLGearResponse {
     pub fn new() -> Self {
-        MLModelResponse {
+        MLGearResponse {
             ..Default::default()
         }
     }
