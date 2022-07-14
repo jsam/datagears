@@ -1,7 +1,7 @@
 use std::{cmp, hash};
 
 use crate::{
-    communications::{DGRequest, DGResponse, MLModelRequest, MLModelResponse, PyModelRequest},
+    communications::{DGRequest, DGResponse, MLGearRequest, MLGearResponse, PyGearRequest},
     errors::*,
 };
 use async_trait::async_trait;
@@ -12,12 +12,12 @@ pub(crate) trait Service {
 }
 
 #[async_trait]
-pub(crate) trait PyModelService {
+pub(crate) trait PyGearService {
     type FutType;
 
     async fn async_process<K: 'static, V: 'static, T: 'static>(
         &self,
-        request: DGRequest<PyModelRequest<K, V, T>>,
+        request: DGRequest<PyGearRequest<K, V, T>>,
     ) -> Self::FutType
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
@@ -26,9 +26,9 @@ pub(crate) trait PyModelService {
 }
 
 #[async_trait]
-pub(crate) trait MLModelService {
+pub(crate) trait MLGearService {
     async fn async_process(
         &self,
-        request: DGRequest<MLModelRequest>,
-    ) -> Result<DGResponse<MLModelResponse>>;
+        request: DGRequest<MLGearRequest>,
+    ) -> Result<DGResponse<MLGearResponse>>;
 }

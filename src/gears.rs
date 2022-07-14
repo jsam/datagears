@@ -8,14 +8,14 @@ use pyo3::{
 };
 
 use crate::{
-    communications::{DGRequest, DGResponse, PyModelRequest, PyModelResponse},
+    communications::{DGRequest, DGResponse, PyGearRequest, PyGearResponse},
     config::DGConfig,
     errors::{DGError, Result},
-    services::{PyModelService, Service},
+    services::{PyGearService, Service},
 };
 
 #[derive(Debug, Default, Clone)]
-pub struct PyModel {
+pub struct PyGear {
     pub name: &'static str,
     pub module_path: PathBuf,
     pub module: &'static str,
@@ -23,9 +23,9 @@ pub struct PyModel {
     config: DGConfig,
 }
 
-impl PyModel {
+impl PyGear {
     pub fn new(config: DGConfig) -> Self {
-        PyModel {
+        PyGear {
             config,
             ..Default::default()
         }
@@ -53,8 +53,8 @@ impl PyModel {
 
     pub fn process<K: 'static, V: 'static, T: 'static>(
         &mut self,
-        request: DGRequest<PyModelRequest<K, V, T>>,
-    ) -> Result<DGResponse<PyModelResponse>>
+        request: DGRequest<PyGearRequest<K, V, T>>,
+    ) -> Result<DGResponse<PyGearResponse>>
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
         V: Default + ToPyObject + Send,
@@ -128,12 +128,12 @@ impl PyModel {
             })
             .unwrap();
 
-        let response: PyModelResponse = py_result.extract()?;
+        let response: PyGearResponse = py_result.extract()?;
         Ok(DGResponse { body: response })
     }
 }
 
-impl Service for PyModel {
+impl Service for PyGear {
     fn load(&mut self) -> Result<()> {
         if !self.module_path.exists() {
             let _err = format!(
@@ -147,12 +147,12 @@ impl Service for PyModel {
 }
 
 #[async_trait]
-impl PyModelService for PyModel {
-    type FutType = FutureObj<'static, Result<DGResponse<PyModelResponse>>>;
+impl PyGearService for PyGear {
+    type FutType = FutureObj<'static, Result<DGResponse<PyGearResponse>>>;
 
     async fn async_process<K: 'static, V: 'static, T: 'static>(
         &self,
-        request: DGRequest<PyModelRequest<K, V, T>>,
+        request: DGRequest<PyGearRequest<K, V, T>>,
     ) -> Self::FutType
     where
         K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
