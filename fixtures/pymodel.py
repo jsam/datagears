@@ -1,7 +1,7 @@
 import sys
 import time
 import os
-import datagears
+from datagears import DataGears, pygear
     
 
 def model_hook(k):
@@ -17,17 +17,30 @@ def model_hook(k):
     return k
 
 
-@datagears.pymodel
-def run(dg: "datagears"):
+@pygear
+def run(dg: "DataGears"):
     """"""
-    iter = dg.iter("my-iter")
+    iter = dg.iter("my-iter").read(10)  # Stateful iterators: Get 10 items from the last known state of `my-iter`
+    iter = dg.iter().last(10) # Stateless iterator: Get last 10 items
+    iter = dg.iter().last()  # Stateless iterator: Get last item
+    log = dg.logging()  # Add a logger for the current execution.
+    exec_id = dg.execution_id()  # Get the execution identifier for this run of the gear.
     
-    dg.info("reading 10 records from the stream")
-    window = iter.read(10)
-    result = window.map(lambda record: model_hook(record))
+    try:
+        result = df.map(lambda record: model_hook(record))
+    except Exception as e:
+        dg.error(e)
     
+    
+    log.info("reading 10 records from the stream")
+    df = iter.read(10)
+    
+    fruits = df.sort("fruits").select(["fruits"])
     dg.info("writing result")
-    dg.write("my-stream2", result)
+    dg.write("only-fruits", fruits)
+    
+    
+    
     
     
     
