@@ -1,8 +1,7 @@
 use std::{cmp, collections::HashMap, fmt::Display, hash, path::PathBuf, sync::Arc};
 
-use futures_util::{future::FutureObj, TryFutureExt};
-use pyo3::{FromPyObject, PyObject, ToPyObject};
-use tract_core::ndarray::Data;
+use futures_util::{future::FutureObj};
+use pyo3::ToPyObject;
 
 use crate::{
     communications::{DGRequest, DGResponse, PyGearRequest, PyGearResponse},
