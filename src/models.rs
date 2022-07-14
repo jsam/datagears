@@ -1,10 +1,10 @@
-use std::{any::Any, cmp, collections::HashMap, fs, hash, path::PathBuf, sync::mpsc, thread};
+use std::{cmp, fs, hash, path::PathBuf, sync::mpsc, thread};
 
 use async_trait::async_trait;
 use futures_util::future::FutureObj;
 use pyo3::{
-    types::{IntoPyDict, PyDict, PyList, PyModule, PyString, PyTuple},
-    FromPyObject, PyObject, Python, ToPyObject,
+    types::{IntoPyDict, PyList, PyModule, PyString, PyTuple},
+    Python, ToPyObject,
 };
 
 use crate::{
