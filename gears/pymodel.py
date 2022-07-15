@@ -1,10 +1,19 @@
 import sys
 import time
 import os
-#from datagears import DataGears, pygear
-    
+import numpy as np
+import requests
+import sklearn
+
 
 def model_hook(k):
+    print("executing pygear")
+    a = np.arange(15).reshape(3, 5)
+    print(a)
+    
+    # print(help("modules"))
+    print("interpreter PYTHONPATH: ", sys.path)
+    
     for key, value in k.items():
         print ("KEY: ", key)
         print ("VALUE: ", value)

@@ -1,3 +1,5 @@
 
 [env]
-PYO3_PYTHON = "/opt/homebrew/bin/python3"
+PYO3_PYTHON = "/Users/sam/Library/Caches/pypoetry/virtualenvs/datagears-VbDHEoF9-py3.10/bin/python"  # PYO3_PYTHON = "/opt/homebrew/bin/python3" 
+VENV_PACKAGES = "/Users/sam/Library/Caches/pypoetry/virtualenvs/datagears-VbDHEoF9-py3.10/lib/python3.10/site-packages"
+GEARS_PACKAGES = "/Users/sam/Learn/rust/datagears-rs/gears"

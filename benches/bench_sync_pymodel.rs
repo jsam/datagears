@@ -12,13 +12,11 @@ use datagears::core::DataGears;
 use datagears::errors::Result;
 
 pub fn datagears_benchmark(c: &mut Criterion) {
-    pyo3::prepare_freethreaded_python();
-
     let dg: DataGears = DataGears::new()
         .config(DGConfig::default())
         .with_pymodel(
             "pymodel",
-            "/Users/sam/Learn/rust/datagears-rs/fixtures",
+            "/Users/sam/Learn/rust/datagears-rs/gears",
             "pymodel",
             "model_hook",
         )
