@@ -6,4 +6,21 @@ It's designed to run with a low memory footprint and latency, while providing al
 
 # Getting started
 
+
 TBA
+
+
+## Installing dependencies
+
+```
+poetry install
+```
+
+#### Install `scipy`
+
+```
+brew install openblas gfortran lapack
+export OPENBLAS=/opt/homebrew/opt/openblas/lib
+```
+
+If in trouble, check `scripts/scipy-install.sh`.

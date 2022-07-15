@@ -1,6 +1,6 @@
 use std::{cmp, collections::HashMap, fmt::Display, hash, path::PathBuf, sync::Arc};
 
-use futures_util::{future::FutureObj};
+use futures_util::future::FutureObj;
 use pyo3::ToPyObject;
 
 use crate::{

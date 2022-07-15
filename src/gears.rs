@@ -87,24 +87,24 @@ impl PyGear {
         let sys_any = sys.getattr("path").unwrap();
         let syspath = sys_any.downcast::<PyList>().unwrap();
 
-        let syspath_entry = syspath
-            .get_item(0)
-            .unwrap()
-            .downcast::<PyString>()
-            .unwrap()
-            .to_string_lossy();
+        // let syspath_entry = syspath
+        //     .get_item(0)
+        //     .unwrap()
+        //     .downcast::<PyString>()
+        //     .unwrap()
+        //     .to_string_lossy();
 
-        if syspath_entry.as_ref() != syspath_module_path {
-            syspath.insert(0, syspath_module_path).unwrap();
-        }
+        // if syspath_entry.as_ref() != syspath_module_path {
+        //     syspath.insert(0, syspath_module_path).unwrap();
+        // }
 
         let datamod = PyModule::from_code(py, source.as_str(), self.name, self.name)
             .map_err(|e| {
                 e.print(py);
                 let err_msg: String = format!(
                     "Import failed in {}\n\
-                \twith traceback",
-                    self.requester_hook
+                \twith traceback=> {:?}",
+                    self.requester_hook, e
                 );
                 DGError::PyModuleError(err_msg.to_owned())
             })
@@ -118,11 +118,11 @@ impl PyGear {
         let py_result = datamod
             .call_method(self.requester_hook, args, Some(kwargs))
             .map_err(|e| {
-                // e.print(py);
+                e.print(py);
                 let err_msg: String = format!(
                     "Call failed over {:?}\n\
-            \twith traceback",
-                    self.requester_hook
+            \twith traceback=> {:?}",
+                    self.requester_hook, e
                 );
                 DGError::PyModuleError(err_msg.to_owned())
             })
